@@ -13,7 +13,7 @@
           <el-input v-model="ruleForm.inputLimit" maxlength="15" show-word-limit placeholder="请输入" />
         </el-form-item>
         <el-form-item label="纯数字（纯数字）：" prop="inputNum">
-          <el-input v-model.number="ruleForm.inputNum" maxlength="11" placeholder="请输入数字" />
+          <el-input v-model.number="ruleForm.inputNum"  maxlength="2" placeholder="请输入数字" />
         </el-form-item>
         <el-form-item label="输入框（密码隐藏）：" prop="password">
           <el-input v-model="ruleForm.password" placeholder="请输入密码" maxlength="16" show-password />

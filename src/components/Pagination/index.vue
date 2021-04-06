@@ -51,6 +51,7 @@ export default {
         return this.page
       },
       set(val) {
+        console.log(val);
         this.$emit('update:page', val)
       }
     },
@@ -59,12 +60,12 @@ export default {
         return this.limit
       },
       set(val) {
-        this.emit('update:limit', val)
+        this.$emit('update:limit', val)
       }
     }
   },
   methods: {
-    handleSizeChange(val) {
+    handleSizeChange(val) {//当前的 key名不一致
       this.$emit('pagination', { page: this.currentPage, limit: val })
     },
     handleCurrentChange(val) {

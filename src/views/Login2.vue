@@ -20,7 +20,7 @@
               placeholder="请输入用户名"
               prefix-icon="el-icon-user"
               v-model="loginForm.username"
-              @blur="getImageCaptchaApi"
+              @blur="getImageCaptchaApi('isflag')"
             />
           </el-form-item>
           <el-form-item prop="password">
@@ -30,7 +30,7 @@
               placeholder="请输入密码"
               prefix-icon="el-icon-lock"
               v-model="loginForm.password"
-              @blur="getImageCaptchaApi"
+              @blur="getImageCaptchaApi('isflag')"
             />
           </el-form-item>
           <el-form-item prop="yzmcode">
@@ -43,7 +43,7 @@
                 prefix-icon="el-icon-lock"
                 v-model="loginForm.yzmcode"
               />
-              <div class="login-code">
+              <div class="login-code" @click="getImageCaptchaApi('isFalse')">
                 <img :src="imgStr" width="100%" />
                 <!-- <canvas id="canvas" width="111" height="40"></canvas> -->
               </div>
@@ -65,12 +65,13 @@
 
 <script>
 import Background from "../assets/img/login-background2.png";
-import axios from 'axios'
+import axios from "axios";
 import { validatAlphabetsNum } from "@/assets/js/validate";
 // import { login,getImageCaptcha } from "../api/login";
-import { apiLogin } from "../api/apilist";
-// import { setToken } from "../utils/cookie";
-import { mapGetters, mapMutations } from 'vuex'
+//登录 获取用户信息
+import { apiLogin, apiGetUserInfo } from "../api/apilist";
+import { getUserInfo } from "../utils/cookie";
+import { mapGetters, mapMutations } from "vuex";
 export default {
   name: "Login2",
   data() {
@@ -160,42 +161,65 @@ export default {
     //   this.yzmToken = result; //获取验证码信息
     //   return result;
     // },
-     ...mapMutations(['setToken']),
-    getImageCaptchaApi() {
-      //获取验证码
+    ...mapMutations(["setToken", "setUserInfo"]),
+    getImageCaptchaApi(flag) {
+      console.log(flag);
+      if (flag == 'isflag'){
+          //获取验证码
+        if (this.imgStr != null) {
+          return false;
+        }
+      }
       if ((this.loginForm.username != "") & (this.loginForm.password != "")) {
         const params = {
           account: this.loginForm.username
         };
         this.$axios({
-           url: '/api/backstageUser/getImageCaptcha',
-            params,
-            method: 'get',
-            responseType: "blob" // 表明返回服务器返回的数据类型
-        }).then(res=>{
-            console.log(res.data)
+          url: "/qd-admin/backstageUser/getImageCaptcha",
+          params,
+          method: "get",
+          responseType: "blob" // 表明返回服务器返回的数据类型
+        })
+          .then(res => {
+            console.log(res.data);
             let blob = new Blob([res.data], { type: "image/jpg" });
             var Fr = new FileReader();
             Fr.readAsDataURL(blob);
             Fr.onload = event => {
               //这个就是转换为的base64图片地址
               this.imgStr = event.target.result;
-              console.log(event.target.result)
+              console.log(event.target.result);
             };
-        }).catch(error=>{
-
-        })
+          })
+          .catch(error => {});
       }
     },
-    initApiLogin(){//用户登录
-
+    initGetUsergInfo() {
+      //用户登录
+      apiGetUserInfo()
+        .then(res => {
+          console.log(res);
+          if (res.code == "200") {
+            let role = res.data.role.split(",");
+            this.setUserInfo(JSON.stringify(role)); //设置用户信息
+            this.$router.push({
+                path: this.redirect != undefined ? this.redirect : "/"
+              });
+          } else {
+            this.$message({
+              type: "error",
+              message: res.message
+            });
+          }
+        })
+        .catch(() => {});
     },
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
         const params = {
           account: this.loginForm.username,
           password: this.loginForm.password,
-          captcha	: this.loginForm.yzmcode
+          captcha: this.loginForm.yzmcode
         };
         if (valid) {
           let isName = validatAlphabetsNum(this.loginForm.username);
@@ -216,11 +240,11 @@ export default {
             !isName ||
             16 < this.loginForm.username.length ||
             this.loginForm.username.length < 4 ||
-            !codeId 
+            !codeId
           ) {
             // this.$toast.fail(isName[1] || isId[1]);  ||
-              // this.loginForm.yzmcode.toLowerCase() !=
-              //   this.yzmToken.toLowerCase()
+            // this.loginForm.yzmcode.toLowerCase() !=
+            //   this.yzmToken.toLowerCase()
             this.$message({
               message: "请输入正确格式" || "请输入右侧验证码",
               type: "warning"
@@ -233,17 +257,16 @@ export default {
           apiLogin(params)
             .then(res => {
               console.log(res);
-              if(res.code == '200'){
-                 this.setToken(res.data)//设置token
-                 this.$router.push({
-                  path: this.redirect != undefined ? this.redirect : "/"
+              if (res.code == "200") {
+                let that = this;
+                this.setToken(res.data); //设置token
+                this.initGetUsergInfo(); //获取用户信息
+                // return false;
+              } else {
+                this.$message({
+                  type: "error",
+                  message: res.message
                 });
-              }else{
-       
-                 this.$message({
-                    type: 'error',
-                    message:res.message
-                })
               }
               this.loading = false;
               // setToken(res.token);

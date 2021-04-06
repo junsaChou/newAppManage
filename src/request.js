@@ -1,12 +1,12 @@
 import axois from 'axios'
 import { Message } from 'element-ui'
-import { getToken } from './utils/cookie'
+import { getToken, removeToken } from './utils/cookie'
 import QS from 'qs'
 
 // 创建axios实例
 const service = axois.create({
-    baseURL: 'http://192.168.0.129:8703/qd-admin',
-    // baseURL: 'http://test.future-better.com/qd-admin', // api 的 base_url process.env.VUE_APP_BASE_API //http://test.future-better.com/qd-admin/  
+    // baseURL: 'http://192.168.0.121:8703/qd-admin',
+    baseURL: 'http://test.future-better.com/qd-admin', // api 的 base_url process.env.VUE_APP_BASE_API //http://test.future-better.com/qd-admin/  
     timeout: 120000 // 请求超时时间
 })
 
@@ -36,7 +36,11 @@ service.interceptors.response.use(
             res.data = response.data
             res.code = response.code
             res.message = response.message
-
+            if (res.data.code == 403) {
+                removeToken()
+                this.$router.push('/login');
+                location.reload()
+            }
             // if (res.code === 0) {
             //     return data.data
             // } else {
@@ -71,10 +75,9 @@ export function get(url, params) { //get 请求
         })
     });
 }
-export function postParams(url, params = {}) { //post 请求 parmas
+export function postParams(url, params) { //post 请求 parmas
     return new Promise((resolve, reject) => {
-        console.log(params)
-        service.post(url, null, QS.stringify(params))
+        service.post(url, null, { params })
             .then(res => {
                 resolve(res.data);
             })

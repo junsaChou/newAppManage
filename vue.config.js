@@ -23,22 +23,22 @@ module.exports = {
     productionSourceMap: false, // 禁用生产环境的 source map
     runtimeCompiler: true, // 是否运行时组件中使用 template
     devServer: {
-        host: 'localhost', // 默认是 localhost,可不配置
+        host: '0.0.0.0', // 默认是 localhost,可不配置
         port: 8000, // 配置端口号
         open: true, // 启动是否打开浏览器
         overlay: { // 是否在浏览器上显示编译的 errors 或 warnings
             warnings: false,
             errors: true
         },
-        proxy: {
-            // '/api': { // 被代理的接口名   192.168.0.129:8703
-            //     target: 'http://192.168.0.129:8703/qd-admin ', // url地址 http://test.future-better.com/qd-admin/   http://42.194.194.178:3000
-            //     changeOrigin: true, // 发送请求头中 host 是否设置成 target
-            //     pathRewrite: { // 重定向
-            //         '^/api': ''
-            //     }
-            // }
-        }
+        // proxy: {
+        //     '/api': { // 被代理的接口名   192.168.0.124:8703
+        //         target: 'http://test.future-better.com/qd-admin', // url地址 http://test.future-better.com/qd-admin/   http://42.194.194.178:3000
+        //         changeOrigin: true, // 发送请求头中 host 是否设置成 target
+        //         pathRewrite: { // 重定向
+        //             '^/api': ''
+        //         }
+        //     }
+        // }
     },
     configureWebpack(config) {
         // 生产环境配置 Gzip 压缩

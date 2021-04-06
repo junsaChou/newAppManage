@@ -1,7 +1,8 @@
 import Cookies from 'js-cookie'
 const state = {
     visitedViews: [],
-    token: '' //判断是否有 token
+    token: '', //判断是否有 token
+    userInfoList: '' //路由信息
 }
 
 const getters = {
@@ -43,6 +44,18 @@ const mutations = {
     getToken() {
         return Cookies.get('token')
             // Cookies.remove('token', token)
+    },
+    setUserInfo(state, userInfoList) {
+        state.userInfoList = userInfoList
+        Cookies.set('userInfoList', userInfoList, { expires: 1 })
+    },
+    getUserInfo() {
+        return Cookies.get('userInfoList')
+            // Cookies.remove('token', token)
+    },
+    removeUserInfo(state, userInfoList) {
+        state.userInfoList = null;
+        Cookies.remove('userInfoList', userInfoList)
     },
 }
 
