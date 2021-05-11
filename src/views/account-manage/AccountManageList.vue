@@ -176,16 +176,18 @@ export default {
         // type: "" // 用户账户状态0未认证 1认证 2通用
       },
       nameArray: [
-        { label: "身份审核", authCode: "IdentityReview" },
-        { label: "用户列表", authCode: "UserManage" },
-        { label: "退单列表", authCode: "ChargeBack" },
+        { label: "身份管理", authCode: "IdentityReview" },
+        { label: "用户管理", authCode: "UserManage" },
         { label: "订单列表", authCode: "OrderList" },
-        { label: "优惠券管理", authCode: "CouponManage" },
-        { label: "账户管理", authCode: "AccountManage" },
-        { label: "banner管理", authCode: "BannerManage" },
+        { label: "退单列表", authCode: "ChargeBack" },
+        { label: "广告管理", authCode: "BannerManage" },
         { label: "消息管理", authCode: "MessageManage" },
-        { label: "优惠券发放列表", authCode: "CouponIssue" },
-        { label: "报表统计", authCode: "ReportList" }
+        { label: "优惠券列表", authCode: "CouponManage" },
+        { label: "优惠券发放列表", authCode: "CouponIssue"},
+        { label: "账户列表", authCode: "AccountManage" },
+        { label: "报表统计", authCode: "ReportList" },
+        { label: "活动专区", authCode: "ActivityManage" },
+        { label: "充值列表", authCode: "RechargeManage" },
       ],
       dateTime: null, //搜索表格绑定时间
       // 数据总条数

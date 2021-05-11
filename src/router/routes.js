@@ -130,7 +130,7 @@ export const asyncRoutes = [
         component: Layout,
         redirect: '/banner-manage/banner-list',
         meta: {
-            title: 'banner管理',
+            title: '广告管理',
             icon: 'vue-dsn-icon-tuichuquanping' //el-icon-s-check
         },
         children: [{
@@ -139,7 +139,7 @@ export const asyncRoutes = [
             component: () =>
                 import ('../views/banner-manage/BannerList'),
             meta: {
-                title: '轮播图列表'
+                title: '广告管理列表'
             }
         }, ]
     },
@@ -219,8 +219,44 @@ export const asyncRoutes = [
             }
         }, ]
     },
-
-
+    {
+        path: '/activity-manage',
+        name: 'ActivityManage',
+        component: Layout,
+        redirect: '/activity-manage/activity-manage-list',
+        meta: {
+            title: '活动管理',
+            icon: 'vue-dsn-icon-biaoge' //el-icon-s-check
+        },
+        children: [{
+            path: 'activity-manage-list',
+            name: 'ActivityManageList',
+            component: () =>
+                import ('../views/activity-manage/ActivityManageList'),
+            meta: {
+                title: '活动专区'
+            }
+        }]
+    },
+    {
+        path: '/recharge-manage',
+        name: 'RechargeManage',
+        component: Layout,
+        redirect: '/recharge-manage/recharge-manage-list',
+        meta: {
+            title: '充值活动管理',
+            icon: 'vue-dsn-icon-biaoge' //el-icon-s-check
+        },
+        children: [{
+            path: 'recharge-manage-list',
+            name: 'RechargeManageList',
+            component: () =>
+                import ('../views/recharge-manage/RechargeManageList'),
+            meta: {
+                title: '充值列表'
+            }
+        }]
+    },
     // {
     //     path: '/image',
     //     name: 'Image',

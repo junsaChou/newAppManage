@@ -5,7 +5,7 @@
       <i class="el-icon-caret-bottom" />
     </div>
     <el-dropdown-menu slot="dropdown">
-      <el-dropdown-item command="userCenter">个人中心</el-dropdown-item>
+      <!-- <el-dropdown-item command="userCenter">个人中心</el-dropdown-item> -->
       <el-dropdown-item command="openPwd">修改密码</el-dropdown-item>
       <el-dropdown-item command="loginOut">退出登录</el-dropdown-item>
     </el-dropdown-menu>
@@ -15,7 +15,7 @@
 <script>
 import { mapGetters, mapMutations } from "vuex";
 import Avatar from "../../assets/img/avatar.png";
-import { removeToken } from "../../utils/cookie";
+import { removeToken,removeUserInfoData } from "../../utils/cookie";
 import { apiEditUserPassword } from "../../api/apilist";
 
 export default {
@@ -45,6 +45,7 @@ export default {
         type: "warning"
       }).then(() => {
         removeToken();
+        removeUserInfoData();
         this.removeUserInfo("userInfoList");
         this.$router.push("/login");
         location.reload();

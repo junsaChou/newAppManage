@@ -80,3 +80,23 @@ export const apiGetCosToken = p => postParams('/cos/getCosToken', p);
 export const apiGetNewsList = p => postBody('/news/getNewsList', p);
 //POST /qd-admin/news/backSendNews
 export const apiBackSendNews = p => postBody('/news/backSendNews', p);
+//POST /qd-admin/activity/activityList 活动专区
+export const apiActivityLists = p => postBody('/activity/activityList', p);  
+//POST /qd-admin/activity/addActivity  添加活动
+export const apiAddActivity = p => postBody('/activity/addActivity', p);  
+//POST/qd-admin/activity/editActivity  编辑活动
+export const apiEditActivity = p => postBody('/activity/editActivity', p);  
+
+// POST /qd-admin/activity/payActivityList  充值活动列表
+export const apiPayActivityList = p => postParams('/activity/payActivityList', p);
+// POST /qd-admin/activity/addVirtualAccount  添加虚拟账户
+export const apiAddVirtualAccount = p => postParams('/activity/addVirtualAccount', p);
+// POST /qd-admin/activity/editVirtualAccount  添加虚拟账户金额
+export const apiEditVirtualAccount = p => postParams('/activity/editVirtualAccount', p);
+// POST /qd-admin/activity/distributeBenefit  发放奖励
+export const apiDistributeBenefit = p => postParams('/activity/distributeBenefit', p);
+
+// POST /qd-admin/reward/rewardList  活动奖励列表
+export const apiRewardList = p => postBody('/reward/rewardList', p);
+// POST /qd-admin/reward/editreward  修改活动奖励
+export const apiEditreward = p => postBody('/reward/editreward', p);

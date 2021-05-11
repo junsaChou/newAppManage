@@ -117,6 +117,8 @@
               v-model="dialogForm.remark"
               resize="none"
               placeholder="请输入拒绝原因!"
+              show-word-limit
+              maxlength="50"
               :rules="{
                 required: true,
                 message: '请输入拒绝原因'
@@ -525,7 +527,7 @@ export default {
   }
   .dialog-form {
     .el-input {
-      max-width: 380px;
+      max-width: 300px;
     }
     .footer-item {
       margin-top: 50px;

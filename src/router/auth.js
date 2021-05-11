@@ -9,16 +9,23 @@ router.beforeEach((to, from, next) => {
             let staticMap = router.options.routes.slice(0, 5);
             let children = router.options.routes.slice(5);
             let routerRole = JSON.parse(getUserInfo());
+            var isFlag = []; //判断变量
             let routerMap = [];
-            console.log(children)
             children.forEach((item, i) => {
                 routerRole.forEach((j, k) => {
+
                     if (item.name == j) {
+                        isFlag.push(item.redirect)
                         routerMap.push(item);
                     }
                 });
             })
             router.options.routes = [...staticMap, ...routerMap]
+            if (to.matched.length === 0) { //如果未匹配到路由
+                from.path ? next({ path: from.path }) : next({ path: '/' }); //如果上级也未匹配到路由则跳转主页面，如果上级能匹配到则转上级路由
+            } else {
+                next(); //如果匹配到正确跳转
+            }
         }
         // 已登录且要跳转的是登录页
         if (to.path === '/login') {

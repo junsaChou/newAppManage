@@ -143,7 +143,7 @@
       <!-- 新增/编辑 弹出栏 -->
     </el-card>
     <div class="body" shadow="always" v-else>
-      <el-page-header @back="()=>this.showDetail=!this.showDetail" content="审核详情"></el-page-header>
+      <el-page-header @back="()=>goBack()" content="审核详情"></el-page-header>
       <div class="app-content">
         <div class="details">
           <div class="left">
@@ -185,7 +185,8 @@
                 <template v-for="(item, index) in peopleImg">
                   <div class="item" :key="index">
                     <div class="img">
-                      <el-image :src="item" fit="cover" :preview-src-list="[item]" />
+                      <el-image :src="item"  fit="cover" :preview-src-list="[item]" v-if="item" />
+                      <div v-else class="imgNull"> 图片未上传</div>
                     </div>
                     <div class="content">
                       <div class="info">
@@ -239,11 +240,10 @@
                 class="demo-table-expand-image"
               >
                 <template v-for="(item, index) in companyImg">
-                  <div class="item" :key="index">
+                  <div class="item" :key="index" :data-item="item">
                     <div class="img">
-                      <!-- {{item}} -->
-                      <!--  -->
-                      <el-image :src="item"  fit="cover" :preview-src-list="[item]"/>
+                      <el-image :src="item"  fit="cover" :preview-src-list="[item]" v-if="item" />
+                      <div v-else class="imgNull"> 图片未上传</div>
                     </div>
                     <div class="content">
                       <div class="info">
@@ -309,7 +309,7 @@
               </el-form-item>
             </el-form>
             <div class="authInfoBtn">
-              <el-button type="primary" @click="showDetail = true">取消</el-button>
+              <el-button type="primary" @click="goBack()">取消</el-button>
               <el-button type="success" @click="onSubmit('isSuccess')">一键通过</el-button>
               <el-button type="danger" @click="onSubmit('error')">一键拒绝</el-button>
             </div>
@@ -437,16 +437,7 @@ export default {
   },
   created() {
     this.PostFetchData();
-    this.apiGetCosTokenInit();
   },
-  // watch: {
-  //   companyImg: {
-  //     handler: function(val, oldval) {
-  //       this.companyImg =  JSON.parse(JSON.stringify(val));
-  //       console.log(val);
-  //     }
-  //   }
-  // },
   methods: {
     // 多选操作
     // handleSelectionChange(val) {
@@ -517,9 +508,23 @@ export default {
       this.PostFetchData();
     },
     //点击审核按钮
-    views(row) {
-      //获取 cors的接口
-      this.apiGetAuthInfoInit(row);
+    async views(row) {
+      // 获取 cors的接口
+      this.companyImg = [];
+      //公司请求意见
+      this.companyAuthInfo =[];
+      //个人请求意见
+      this.peopleAuthInfo = [];
+      //个人照片
+      this.peopleImg = [];
+      //先清空内容
+      this.apiGetCosTokenInit(row);
+      // this.apiGetAuthInfoInit(row);
+    },
+    goBack(){
+        this.showDetail = true;
+    
+        // this.apiGetCosTokenInit();
     },
     //获取cors的图片url函数
     corsTcUrl(imgData, index, dom) {
@@ -569,7 +574,7 @@ export default {
       );
     },
     //获取 cors 密钥的接口
-    apiGetCosTokenInit() {
+    apiGetCosTokenInit( row) {
       let data = { type: 2 };
       apiGetCosToken(data)
         .then(res => {
@@ -582,7 +587,9 @@ export default {
             this.corsTokem.region = res.data.region;
             this.corsTokem.filePath = res.data.filePath;
             this.corsTokem.sessionToken = res.data.sessionToken;
+
             console.log(this.corsTokem);
+             this.apiGetAuthInfoInit(row);
           } else {
             this.$message({
               type: "warning",
@@ -606,10 +613,10 @@ export default {
             this.authInfoData = res.data;
 
             let companyImgArr = res.data.companyImg.split(",");
-            this.companyImg = companyImgArr; //储存公司图片的数组
+            this.companyImg.length = companyImgArr.length; //储存公司图片的数组
 
             let peopleImgArr = res.data.peopleImg.split(",");
-            this.peopleImg = peopleImgArr; //储存公司图片的数组
+            this.peopleImg.length = peopleImgArr.length; //储存公司图片的数组
             if (res.data.companyAuthInfo != null) {
               this.companyAuthInfo = res.data.companyAuthInfo.split(","); //储存公司审核意见的数组
             } else {
@@ -731,6 +738,9 @@ export default {
     //   }
     // }
   }
+  .el-image-viewer__canvas{
+    padding: 20px 0;
+  }
   .demo-table-expand-image {
     display: flex;
     justify-content: flex-start;
@@ -746,6 +756,17 @@ export default {
         .el-image {
           width: 100%;
           height: 100%;
+          padding: 10px 0;
+          text-align: center;
+          img{
+            width: auto;
+          }
+        }
+        .imgNull{
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
       }
 

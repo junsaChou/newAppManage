@@ -47,9 +47,10 @@ export const constantRoutes = [{
             path: 'home',
             name: 'Home',
             component: () =>
-                import ('../views/Home'),
+                import ('../views/UserCenter'),
+            // import ('../views/Home'),
             meta: {
-                title: '首页',
+                title: '个人中心', //首页
                 icon: 'vue-dsn-icon-index',
                 fixed: true
             }

@@ -5,9 +5,10 @@
       <el-form
         ref="searchForm"
         :inline="true"
-        :model="listQuery"
+        :model="listQuery" 
         label-width="90px"
         class="search-form"
+        v-if=" 1>2"
       >
         <el-form-item label="广告名称">
           <el-input v-model="listQuery.title" placeholder="请填写" />
@@ -40,14 +41,6 @@
             align="right"
           ></el-date-picker>
         </el-form-item>
-        <el-form-item label="广告类型">
-          <el-select v-model="listQuery.bannerType" placeholder="请填写">
-            <el-option value label="全部" />
-            <el-option :value="0" label="首页banner" />
-            <el-option :value="1" label="悬浮" />
-            <el-option :value="2" label="弹窗" />
-          </el-select>
-        </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="onSubmit">搜索</el-button>
           <el-button type="warning" @click="onReset">重置</el-button>
@@ -55,7 +48,7 @@
       </el-form>
       <!-- 操作栏 -->
       <div class="control-btns">
-        <el-button type="primary" @click="handleCreate">创建banner</el-button>
+        <el-button type="primary" @click="handleCreate">添加活动</el-button>
       </div>
       <!-- 表格栏 -->
       <el-table
@@ -69,47 +62,49 @@
         <!-- <el-table-column type="selection" width="60" /> -->
         <el-table-column
           show-overflow-tooltip
-          prop="sort"
+          prop="activitySort"
           label="排序"
           align="center"
           width="90"
           sortable
         />
-        <el-table-column show-overflow-tooltip prop="title" label="广告名称" align="center" />
-        <el-table-column show-overflow-tooltip  label="广告图片" align="center" >
+        <el-table-column show-overflow-tooltip prop="title" label="活动名称" align="center" />
+        <el-table-column show-overflow-tooltip  label="活动banner" align="center" >
            <template slot-scope="scope">
              <img :src="scope.row.bannerUrl" alt="">
             <!-- <span>{{scope.row.createTime | formatDate}}</span> -->
           </template>
         </el-table-column> 
-        <el-table-column show-overflow-tooltip prop="linkUrl" label="跳转链接" align="center" />
-        <el-table-column show-overflow-tooltip label="创建时间" align="center" width="100">
+        <el-table-column show-overflow-tooltip prop="linkUrl" label="活动链接" align="center" />
+        <el-table-column show-overflow-tooltip label="开始时间" align="center" width="100">
           <template slot-scope="scope">
-            <span>{{scope.row.createTime | formatDate}}</span>
+            <span>{{scope.row.startTime | formatDate}}</span>
           </template>
         </el-table-column>
-        <el-table-column show-overflow-tooltip label="账户状态" align="center">
-          <template
-            slot-scope="scope"
-          >{{ scope.row.type == '0'?'未认证': scope.row.type == '1'? '认证':'通用' }}</template>
+        <el-table-column show-overflow-tooltip label="结束时间" align="center" width="100">
+          <template slot-scope="scope">
+            <span>{{scope.row.endTime  | formatDate}}</span>
+          </template>
         </el-table-column>
-        <el-table-column show-overflow-tooltip label="广告状态 " align="center">
-          <template slot-scope="scope">{{ scope.row.state == '0'?'禁用':'启用' }}</template>
+        <el-table-column show-overflow-tooltip label="状态 " align="center">
+          <template slot-scope="scope">
+            <!-- <span>{{ scope.row.userState =='0'?'冻结':'正常' }}</span> -->
+            <el-switch
+              class="switch"
+              v-model="scope.row.state"
+              active-text="禁用"
+              :active-value="0"
+              active-color="#F04134"
+              inactive-text="正常"
+              :inactive-value="1"
+              inactive-color="#00A854"
+              @change="stateChange(scope.row)"
+            />
+          </template>
         </el-table-column>
-        <!-- //bannerType -->
-        <el-table-column show-overflow-tooltip label="广告类型 " align="center">
-          <template slot-scope="scope">{{ scope.row.bannerType == '0'?'首页banner': scope.row.bannerType == '1'? '悬浮' :'弹窗' }}</template>
-        </el-table-column>
-        <el-table-column show-overflow-tooltip label="有效期" align="center">
-          <template
-            slot-scope="scope"
-          >{{ scope.row.startTime | formatDate }} - {{scope.row.endTime | formatDate }}</template>
-        </el-table-column>
-        <!-- <el-table-column prop="hobby" label="爱好" align="center" width="300" show-overflow-tooltip /> -->
         <el-table-column label="操作" fixed="right" align="center" width="150">
           <template slot-scope="scope">
             <el-button size="mini" type="primary" @click="handleEdit(scope.$index,scope.row)">编辑</el-button>
-            <el-button size="mini" type="danger" @click="handleDelete(scope.$index,scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -129,23 +124,13 @@
         :before-close="handleClose"
       >
         <el-form ref="dialogForm" :model="dialogForm" :rules="formRules" label-width="110px">
-          <el-form-item label="广告名称：" prop="title" maxlength="16">
+          <el-form-item label="活动名称：" prop="title" maxlength="16">
             <el-input v-model="dialogForm.title" />
           </el-form-item>
-           <el-form-item label="广告类型：" prop="bannerType">
-            <el-select v-model="dialogForm.bannerType">
-              <el-option :value="0" label="首页banner" />
-              <el-option :value="1" label="悬浮" />
-              <el-option :value="2" label="弹窗" />
-            </el-select>
+          <el-form-item label="排序：" prop="activitySort" maxlength="2">
+            <el-input v-model="dialogForm.activitySort" />
           </el-form-item>
-          <el-form-item label="排序：" v-if="dialogForm.bannerType == 0" prop="bannerSort" maxlength="2">
-            <el-input v-model="dialogForm.bannerSort" />
-          </el-form-item>
-          <el-form-item label="正常/禁用： " prop="state">
-            <el-switch v-model="dialogForm.state" active-value="1" inactive-value="0"></el-switch>
-          </el-form-item>
-          <el-form-item label="banner图片： " prop="bannerUrl">
+          <el-form-item label="活动图片： " prop="bannerUrl">
             <!-- :action="dialogForm.bannerUrl" -->
             <el-upload
               class="avatar-uploader"
@@ -165,31 +150,24 @@
           <!-- <el-form-item label="图片地址：" prop="bannerUrl">
             <el-input v-model="dialogForm.bannerUrl" />
           </el-form-item>-->
-          <el-form-item label="跳转链接：" prop="linkUrl">
+          <el-form-item label="活动链接：" prop="linkUrl">
             <el-input v-model="dialogForm.linkUrl" />
           </el-form-item>
-          <el-form-item label="开始时间：" prop="startTime">
+          <el-form-item label="开始时间：" prop="activityStartTime">
             <el-date-picker
-              v-model="dialogForm.startTime"
+              v-model="dialogForm.activityStartTime "
               type="datetime"
               value-format="yyyy-MM-dd HH:mm:ss"
               placeholder="选择日期时间"
             ></el-date-picker>
           </el-form-item>
-          <el-form-item label="结束时间：" prop="endTime">
+          <el-form-item label="结束时间：" prop="activityEndTime">
             <el-date-picker
-              v-model="dialogForm.endTime"
+              v-model="dialogForm.activityEndTime "
               type="datetime"
               value-format="yyyy-MM-dd HH:mm:ss"
               placeholder="选择日期时间"
             ></el-date-picker>
-          </el-form-item>
-          <el-form-item label="用户账户状态：" prop="type">
-            <el-select v-model="dialogForm.type">
-              <el-option :value="0" label="未认证" />
-              <el-option :value="1" label="认证" />
-              <el-option :value="2" label="通用" />
-            </el-select>
           </el-form-item>
           <div class="footer-item">
             <el-button @click="cancleForm">取 消</el-button>
@@ -219,12 +197,11 @@
 </template>
 
 <script>
-//轮播图列表  编辑轮播图接口 删除  创建 获取cors的密钥
+//活动列表  添加活动 编辑活动
 import {
-  apiGetBannerList,
-  apiEditBanner,
-  apiDeletBanner,
-  apiCreateBanner,
+  apiActivityLists,
+  apiAddActivity,
+  apiEditActivity,
   apiGetCosToken
 } from "../../api/apilist";
 // import excel from "../../utils/excel";
@@ -274,27 +251,25 @@ export default {
       listLoading: true,
       // 查询列表参数对象
       listQuery: {
-        endTime: null, // 结束时间 ,
-        id: null, //id ,
-        linkUrl: null, // 跳转链接 ,
-        startTime: null, // 开始时间 ,
-        state: null, // 状态0禁用1启用 ,
-        title: null, // 广告名称 ,
-        type: null, //用户账户状态
-        bannerType: null //广告类型
+        // activityEndTime : null, // 结束时间 ,
+        // id: null, //id ,
+        // linkUrl: null, // 跳转链接 ,
+        // activityStartTime : null, // 开始时间 ,
+        // state: '1', // 状态0禁用1启用 ,
+        // title: null, // 广告名称 ,
+        // type: null //用户账户状态
       },
       // 新增/编辑提交表单对象
       dialogForm: {
-        bannerUrl: "", //banner图片路径 ,
-        bannerSort: "", //排序
-        endTime: "", //结束时间 ,
+        bannerUrl: "", //banner 活动图片路径 ,
+        activitySort: "", //排序
+        activityEndTime : "", //结束时间 ,
         id: "", // id ,
-        linkUrl: "", //跳转链接 ,
-        startTime: "", //开始时间 ,
+        linkUrl: "", //活动链接 ,
+        activityStartTime : "", //开始时间 ,
         state: '1', //状态0禁用1启用 ,
-        title: "", //广告名称 ,
-        type: null, // 用户账户状态0未认证 1认证 2通用
-        bannerType:null //广告 类型
+        title: "", // 活动名称 ,
+        // type: null // 用户账户状态0未认证 1认证 2通用
       },
       imgUrl: null, //图片展示的路径
       imgFile: "", // 上传文件对象
@@ -332,7 +307,7 @@ export default {
             trigger: "blur"
           }
         ],
-        bannerSort: [
+        activitySort: [
           { required: true, message: "请输入最大为99的数字", trigger: "blur" },
           {
             validator: validatorForm.validateNumber,
@@ -342,18 +317,15 @@ export default {
         bannerUrl: [
           { required: true, message: "请上传图片", trigger: "blur" }
         ],
-        startTime: [
+        activityStartTime: [
           { required: true, message: "请输入开始时间", trigger: "blur" }
         ],
-        endTime: [
+        activityEndTime: [
           { required: true, message: "请输入结束时间", trigger: "blur" }
         ],
         type: [
           { required: true, message: "请选择用户账户状态：", trigger: "blur" }
-        ],
-        bannerType: [
-          { required: true, message: "请选择广告类型：", trigger: "blur" }
-        ],
+        ]
       },
       // 防止多次连续提交表单
       isSubmit: false,
@@ -379,64 +351,20 @@ export default {
          this.dialogForm.bannerUrl = row.bannerUrl;
         this.imgUrl = row.bannerUrl;
       }
-     
-      this.dialogForm.startTime = this.$options.filters["FormatDate"](
+      this.dialogForm.activityStartTime = this.$options.filters["FormatDate"](
         row.startTime
       ); //调用全局的filters方法
-      this.dialogForm.endTime = this.$options.filters["FormatDate"](
+      this.dialogForm.activityEndTime = this.$options.filters["FormatDate"](
         row.endTime
       ); //调用全局的filters方法
-      this.dialogForm.bannerSort = row.sort; //排序
-      this.dialogForm.state = String(row.state); //switch  的value 类型统一为字符串
+      this.dialogForm.activitySort = row.activitySort; //排序
+      // this.dialogForm.state = String(row.state); //switch  的value 类型统一为字符串
       this.dialogForm.title = row.title;
-      this.dialogForm.type = row.type;
-      this.dialogForm.bannerType = row.bannerType;
+      // this.dialogForm.type = row.type;
       this.apiGetCosTokenInit();
       // this.corsTcUrl(this.dialogForm.bannerUrl, 0, "create");
     },
-    // 删除数据
-    handleDelete(index, row) {
-      console.log(index, row);
-      this.$confirm("此操作将删除选中数据, 是否继续?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      })
-        .then(() => {
-          this.deleteApi(row);
-          // 此处可添加--删除接口
-          // 删除成功调用fetchData方法更新列表
-          this.$message({
-            type: "success",
-            message: "删除成功!"
-          });
-        })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "已取消删除"
-          });
-        });
-    },
-    deleteApi(id) {
-      let data = { bannerId: id };
-      apiDeletBanner(data)
-        .then(res => {
-          console.log(res);
-          if (res.code === 200) {
-            this.PostFetchData(); //重新请求接口
-          } else {
-            this.$message({
-              type: "warning",
-              message: res.message
-            });
-          }
-        })
-        .catch(error => {
-          console.log(error);
-          this.listLoading = false;
-        });
-    },
+
     //获取 cors 密钥的接口
     apiGetCosTokenInit() {
       let data = { type: 3 };
@@ -549,7 +477,7 @@ export default {
     handleCreate() {
       //创建banner 轮播图
       this.formVisibleList.formVisible = true;
-      this.formVisibleList.title = "创建";
+      this.formVisibleList.title = "添加活动";
       this.formVisibleList.isCreate = true;
       this.apiGetCosTokenInit();
     },
@@ -561,7 +489,7 @@ export default {
       data["pageIndex"] = this.pageIndex;
       data["pageSize"] = this.pageSize;
       // delete data.dateTime;
-      apiGetBannerList(data)
+      apiActivityLists(data)
         .then(res => {
           console.log(res);
           if (res.code === 200) {
@@ -609,7 +537,7 @@ export default {
 
           if (isCreate) {
             data["id"] = null;
-            apiCreateBanner(data) //创建
+            apiAddActivity(data) //创建
               .then(res => {
                 console.log(res);
                 if (res.code === 200) {
@@ -622,17 +550,7 @@ export default {
                 this.listLoading = false;
               });
           } else {
-            apiEditBanner(data) //编辑
-              .then(res => {
-                console.log(res);
-                if (res.code === 200) {
-                  this.PostFetchData();
-                  this.cancleForm(); //清空表单
-                }
-              })
-              .catch(error => {
-                this.listLoading = false;
-              });
+            this.apiUpdateActivityInit(data);//编辑
           }
 
           // 此处添加 新增/编辑数据的接口 新增成功后调用fetchData方法更新列表
@@ -643,6 +561,19 @@ export default {
           return false;
         }
       });
+    },
+    apiUpdateActivityInit(data){
+        apiEditActivity(data) //编辑
+        .then(res => {
+          console.log(res);
+          if (res.code === 200) {
+            this.PostFetchData();
+            this.cancleForm(); //清空表单
+          }
+        })
+        .catch(error => {
+          this.listLoading = false;
+        });
     },
     // 新增/编辑表单取消提交
     cancleForm() {
@@ -662,10 +593,14 @@ export default {
       console.log("hh");
       this.isAbc = true;
     },
-    changePicker(val) {
-      //点击确定时间
-      console.log(val);
-    }
+    stateChange(state) {
+      //动态切换状态
+      let data = {};
+      console.log(state)
+      data["id"] = state.id; //id
+      data["state"] = state.state ; //当前的状态
+      this.apiUpdateActivityInit(data);
+    },
   }
 };
 </script>
@@ -753,5 +688,37 @@ export default {
     color: #aaa;
     text-align: center;
   }
+}
+/* switch按钮样式 */
+.switch .el-switch__label {
+  position: absolute;
+  display: none;
+  color: #fff !important;
+}
+/*打开时文字位置设置*/
+.switch .el-switch__label--right {
+  z-index: 1;
+}
+/* 调整打开时文字的显示位子 */
+.switch .el-switch__label--right span {
+  margin-right: 9px;
+}
+/*关闭时文字位置设置*/
+.switch .el-switch__label--left {
+  z-index: 1;
+}
+/* 调整关闭时文字的显示位子 */
+.switch .el-switch__label--left span {
+  margin-left: 9px;
+}
+/*显示文字*/
+.switch .el-switch__label.is-active {
+  display: block;
+}
+/* 调整按钮的宽度 */
+.switch.el-switch .el-switch__core,
+.el-switch .el-switch__label {
+  width: 70px !important;
+  margin: 0;
 }
 </style>

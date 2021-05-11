@@ -4,7 +4,7 @@
       <div class="form-box-left" />
       <div class="form-box-right">
         <div class="form-title">
-          <p>抢单管理</p>
+          <p>金牛展业</p>
         </div>
         <el-form
           ref="loginForm"
@@ -42,6 +42,7 @@
                 placeholder="验证码"
                 prefix-icon="el-icon-lock"
                 v-model="loginForm.yzmcode"
+                @keyup.enter.native="handleLogin"
               />
               <div class="login-code" @click="getImageCaptchaApi('isFalse')">
                 <img :src="imgStr" width="100%" />
@@ -50,7 +51,7 @@
             </div>
           </el-form-item>
           <el-form-item>
-            <el-button size="small" type="primary" style="width:100%;" @click="handleLogin">
+            <el-button size="small" type="primary" style="width:100%;" @click.native="handleLogin"  @keyup.enter.native="handleLogin"  >
               <span v-if="!loading">立即登录</span>
               <span v-else>登 录 中...</span>
             </el-button>
@@ -161,9 +162,8 @@ export default {
     //   this.yzmToken = result; //获取验证码信息
     //   return result;
     // },
-    ...mapMutations(["setToken", "setUserInfo"]),
+    ...mapMutations(["setToken", "setUserInfo","setUserInfoData"]),
     getImageCaptchaApi(flag) {
-      console.log(flag);
       if (flag == 'isflag'){
           //获取验证码
         if (this.imgStr != null) {
@@ -181,14 +181,12 @@ export default {
           responseType: "blob" // 表明返回服务器返回的数据类型
         })
           .then(res => {
-            console.log(res.data);
             let blob = new Blob([res.data], { type: "image/jpg" });
             var Fr = new FileReader();
             Fr.readAsDataURL(blob);
             Fr.onload = event => {
               //这个就是转换为的base64图片地址
               this.imgStr = event.target.result;
-              console.log(event.target.result);
             };
           })
           .catch(error => {});
@@ -198,10 +196,11 @@ export default {
       //用户登录
       apiGetUserInfo()
         .then(res => {
-          console.log(res);
+        
           if (res.code == "200") {
             let role = res.data.role.split(",");
             this.setUserInfo(JSON.stringify(role)); //设置用户信息
+            this.setUserInfoData(res.data)//个人中心信息
             this.$router.push({
                 path: this.redirect != undefined ? this.redirect : "/"
               });
@@ -256,7 +255,6 @@ export default {
           //  this.$router.push("/")
           apiLogin(params)
             .then(res => {
-              console.log(res);
               if (res.code == "200") {
                 let that = this;
                 this.setToken(res.data); //设置token
@@ -269,11 +267,6 @@ export default {
                 });
               }
               this.loading = false;
-              // setToken(res.token);
-              // console.log(this.redirect == undefined);
-              // this.$router.push({
-              //   path: this.redirect != undefined ? this.redirect : "/"
-              // });
             })
             .catch(() => {
               this.loading = false;

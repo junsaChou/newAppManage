@@ -3,6 +3,8 @@
 const numberReg = /^[0-9]{1,2}$/
     //满减金额验证
 const numberMaxReg = /^[0-9]{1,5}$/
+    //充值金额验证
+const numberCzMaxReg = /^[0-9]{1,6}$/
     // 中文
 const cnReg = /^[\u4e00-\u9fa5]+$/
     //userNamr
@@ -44,6 +46,14 @@ export default {
     validateWithAmount: function(rule, value, callback) {
         if (!numberMaxReg.test(value)) {
             callback(new Error('请输入最大五位数字'))
+        } else {
+            callback()
+        }
+    },
+    //充值金额
+    validateNumberCzMaxReg: function(rule, value, callback) {
+        if (!numberCzMaxReg.test(value)) {
+            callback(new Error('请输入最大6位数字'))
         } else {
             callback()
         }

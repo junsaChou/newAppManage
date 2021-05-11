@@ -1,12 +1,13 @@
 import axois from 'axios'
 import { Message } from 'element-ui'
 import { getToken, removeToken } from './utils/cookie'
-import QS from 'qs'
+// import QS from 'qs'
 
 // 创建axios实例
 const service = axois.create({
-    // baseURL: 'http://192.168.0.121:8703/qd-admin',
-    baseURL: 'http://test.future-better.com/qd-admin', // api 的 base_url process.env.VUE_APP_BASE_API //http://test.future-better.com/qd-admin/  
+    baseURL: 'http://test.future-better.com/qd-admin',
+    // baseURL: 'http://192.168.0.129:8703/qd-admin',
+    // baseURL: 'https://www.jinniuzhanye.com/qd-admin', // api 的 base_url process.env.VUE_APP_BASE_API //http://test.future-better.com/qd-admin/  
     timeout: 120000 // 请求超时时间
 })
 
@@ -88,7 +89,7 @@ export function postParams(url, params) { //post 请求 parmas
 }
 export function postBody(url, data) { //post 请求 parmas
     return new Promise((resolve, reject) => {
-        console.log(data)
+        // console.log(data)
         service.post(url, data)
             .then(res => {
                 resolve(res.data);
