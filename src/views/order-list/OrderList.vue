@@ -234,12 +234,12 @@
                 </template>
                 <template>
                   <el-form-item label="是否特价:">
-                    <span>{{ orderListInfo.discount == 0 ?'否':'是' }}</span>
+                    <span>{{ orderListInfo.discount == false ?'否':'是' }}</span>
                   </el-form-item>
                 </template>
                 <template>
                   <el-form-item label="有无社保:">
-                    <span>{{ orderListInfo.hasSocialSecurity == 0 ? '无' : '有' }}</span>
+                    <span>{{ orderListInfo.hasSocialSecurity == false ? '无' : orderListInfo.socialSecurity }}</span>
                   </el-form-item>
                 </template>
                 <template>
@@ -249,7 +249,7 @@
                 </template>
                 <template>
                   <el-form-item label="芝麻分:">
-                    <span>{{ orderListInfo.hasSesame == 0 ? '无' : '有'}}</span>
+                    <span>{{ orderListInfo.hasSesame == false ? '无' : orderListInfo.sesameScore }}</span>
                   </el-form-item>
                 </template>
                 <template>
@@ -279,7 +279,7 @@
                 </template>
                 <template>
                   <el-form-item label="有无公积金:">
-                    <span>{{ orderListInfo.accumulationFund == 0 ?'无' :'有'}}</span>
+                    <span>{{ orderListInfo.hasAccumulationFund == false ?'无' :orderListInfo.accumulationFund}}</span>
                   </el-form-item>
                 </template>
                 <template>
@@ -324,7 +324,7 @@
                 </template>
                 <template v-if=" orderListInfo.professional == 2">
                   <el-form-item label="营业执照:">
-                    <span>{{ orderListInfo.payType == 0 ?'否' :'有'  }}</span>
+                    <span>{{ orderListInfo.businessLicense == false ?'否' :'有'  }}</span>
                   </el-form-item>
                 </template>
               </el-form>

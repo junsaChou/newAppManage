@@ -257,6 +257,44 @@ export const asyncRoutes = [
             }
         }]
     },
+    {
+        path: '/invite-manage',
+        name: 'InviteManage',
+        component: Layout,
+        redirect: '/invite-manage/invite-manage-list',
+        meta: {
+            title: '邀请活动管理',
+            icon: 'vue-dsn-icon-biaoge' //el-icon-s-check
+        },
+        children: [{
+            path: 'invite-manage-list',
+            name: 'InviteManageList',
+            component: () =>
+                import ('../views/invite-manage/InviteManageList'),
+            meta: {
+                title: '邀请列表'
+            }
+        }]
+    },
+    {
+        path: '/integral-manage',
+        name: 'IntegralManage',
+        component: Layout,
+        redirect: '/integral-manage/integral-manage-list',
+        meta: {
+            title: '积分管理',
+            icon: 'vue-dsn-icon-biaoge' //el-icon-s-check
+        },
+        children: [{
+            path: 'integral-manage-list',
+            name: 'IntegralManageList',
+            component: () =>
+                import ('../views/integral-manage/IntegralManageList'),
+            meta: {
+                title: '积分列表'
+            }
+        }]
+    },
     // {
     //     path: '/image',
     //     name: 'Image',

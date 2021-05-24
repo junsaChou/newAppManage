@@ -4,7 +4,7 @@ const numberReg = /^[0-9]{1,2}$/
     //满减金额验证
 const numberMaxReg = /^[0-9]{1,5}$/
     //充值金额验证
-const numberCzMaxReg = /^[0-9]{1,6}$/
+const rechargeReg = /^[1-9][0-9]{0,5}$/;
     // 中文
 const cnReg = /^[\u4e00-\u9fa5]+$/
     //userNamr
@@ -51,9 +51,10 @@ export default {
         }
     },
     //充值金额
-    validateNumberCzMaxReg: function(rule, value, callback) {
-        if (!numberCzMaxReg.test(value)) {
-            callback(new Error('请输入最大6位数字'))
+    validateRechargeReg: function(rule, value, callback) {
+
+        if (!rechargeReg.test(value)) {//rechargeReg
+            callback(new Error('请输入1-999999的数额'))
         } else {
             callback()
         }
@@ -100,13 +101,14 @@ export default {
     },
     // 电话验证
     validatePhone: function(rule, value, callback) {
+        console.log(value)
         if (!phoneReg.test(value)) {
             callback(new Error('请输入正确的手机号码'))
         } else {
             callback()
         }
     },
-    //合法url验证
+    //合法url验证  充值验证
     validateUrl: function(rule, value, callback) {
         if (!urlrReg.test(value)) {
             callback(new Error('请输入正确url格式'))

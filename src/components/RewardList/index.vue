@@ -21,12 +21,17 @@
       size="medium"
     >
       <el-table-column
+         type="index"
+        align="center"
+         label="排名"
+      />
+      <!-- <el-table-column
         :resizable="false"
         show-overflow-tooltip
         prop="id"
         label="排名"
         align="center"
-      />
+      /> -->
       <el-table-column
         :resizable="false"
         show-overflow-tooltip
@@ -55,12 +60,15 @@ import { apiRewardList, apiEditreward} from "../../api/apilist";
 
 export default {
   name: "Coupon",
-  // props: {
-  //   userId: {
-  //     type: String,
-  //     required: true
-  //   }
-  // },
+  props: {
+    isActiviteId: {
+      type: Number,
+      required: true
+    }
+  },
+  created(){
+    console.log( this.isActiviteId )
+  },
   data() {
     return {
       msg: true, //控制子组件的显示与隐藏
@@ -68,15 +76,15 @@ export default {
       // 数据列表加载动画
       listLoading: true,
       // 查询列表参数对象
-      couponForm: {
-        activiteId : 2, //活动id
-        // endTime: null, //发放结束时间
-        // useStartTime: null,//使用开始时间
-        // useEndTime: null,//使用结束时间
-        // pageIndex: 1, //页码 ,
-        // pageSize: 10, //每页数据
-        // userId: null //所传id
-      },
+      // couponForm: {
+      //   activiteId : 2, //活动id
+      //   // endTime: null, //发放结束时间
+      //   // useStartTime: null,//使用开始时间
+      //   // useEndTime: null,//使用结束时间
+      //   // pageIndex: 1, //页码 ,
+      //   // pageSize: 10, //每页数据
+      //   // userId: null //所传id
+      // },
       usageTime: null, //使用时间
       Issue: null, //发放时间
       // 新增/编辑提交表单对象
@@ -117,7 +125,7 @@ export default {
       // 获取审核数据列表接口
       // return false;
       console.log(this.couponForm);
-      let data = this.couponForm;
+      let data = { activiteId: this.isActiviteId};
       apiRewardList(data)
         .then(res => {
           console.log(res);

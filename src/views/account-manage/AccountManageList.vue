@@ -149,6 +149,7 @@ import {
 import validatorForm from "../../assets/js/validatorForm";
 import Pagination from "../../components/Pagination";
 import { validatAlphabetsNum } from "@/assets/js/validate";
+import { nameArray } from "@/assets/js/mock"
 // import Hints from '../../components/Hints'
 
 export default {
@@ -175,20 +176,7 @@ export default {
         state: null //状态0禁用1启用 ,
         // type: "" // 用户账户状态0未认证 1认证 2通用
       },
-      nameArray: [
-        { label: "身份管理", authCode: "IdentityReview" },
-        { label: "用户管理", authCode: "UserManage" },
-        { label: "订单列表", authCode: "OrderList" },
-        { label: "退单列表", authCode: "ChargeBack" },
-        { label: "广告管理", authCode: "BannerManage" },
-        { label: "消息管理", authCode: "MessageManage" },
-        { label: "优惠券列表", authCode: "CouponManage" },
-        { label: "优惠券发放列表", authCode: "CouponIssue"},
-        { label: "账户列表", authCode: "AccountManage" },
-        { label: "报表统计", authCode: "ReportList" },
-        { label: "活动专区", authCode: "ActivityManage" },
-        { label: "充值列表", authCode: "RechargeManage" },
-      ],
+      nameArray: [],
       dateTime: null, //搜索表格绑定时间
       // 数据总条数
       total: 0,
@@ -244,6 +232,7 @@ export default {
   },
   created() {
     this.PostFetchData();
+    this.nameArray = nameArray;
   },
   methods: {
     // 编辑数据
@@ -370,7 +359,7 @@ export default {
                 e['roleName'] = roleName.join(',');
               })
             }
-            console.log(this.tableData)
+            // console.log(this.tableData)
             this.listLoading = false;
           } else {
             this.$message({
@@ -380,6 +369,10 @@ export default {
           }
         })
         .catch(error => {
+          this.$message({
+              type: "warning",
+              message: error
+            });
           console.log(error);
           this.listLoading = false;
         });
@@ -421,7 +414,6 @@ export default {
             data["userName"] = this.dialogForm.userName;
             apiCreateUser(data) //创建
               .then(res => {
-                console.log(res);
                 if (res.code === 200) {
                   this.PostFetchData();
                   // this.$refs[formName].resetFields(); //清空表单

@@ -175,7 +175,7 @@ export default {
           account: this.loginForm.username
         };
         this.$axios({
-          url: "/qd-admin/backstageUser/getImageCaptcha",
+          url: "/api/backstageUser/getImageCaptcha",
           params,
           method: "get",
           responseType: "blob" // 表明返回服务器返回的数据类型

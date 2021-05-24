@@ -5,7 +5,7 @@ import { getToken, removeToken } from './utils/cookie'
 
 // 创建axios实例
 const service = axois.create({
-    baseURL: 'http://test.future-better.com/qd-admin',
+    // baseURL: 'http://test.future-better.com/qd-admin',
     // baseURL: 'http://192.168.0.129:8703/qd-admin',
     // baseURL: 'https://www.jinniuzhanye.com/qd-admin', // api 的 base_url process.env.VUE_APP_BASE_API //http://test.future-better.com/qd-admin/  
     timeout: 120000 // 请求超时时间

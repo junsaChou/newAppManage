@@ -40,8 +40,8 @@
         <!-- <el-table-column type="selection" width="60" /> -->
         <el-table-column
           show-overflow-tooltip
-          type="index"
           label="排名"
+          prop="id"
           align="center"
           width="90"
         />
@@ -51,7 +51,7 @@
         <el-table-column label="操作" fixed="right" align="center" width="150">
           <template slot-scope="scope">
             <!-- {{extendsMap.type}}{{scope.row.rewardState}} -->
-            <el-button size="mini" v-if="(extendsMap.type == 2 & scope.row.rewardState == 0 )" type="primary" @click="handleDispatch(scope.$index,scope.row)">发放奖励</el-button>
+            <el-button size="mini" v-if="(extendsMap.type == 2 & scope.row.rewardState == 0 & scope.row.userType  == 0   & scope.row.id  <= 10)" type="primary" @click="handleDispatch(scope.$index,scope.row)">发放奖励</el-button>
             <span v-else-if="(extendsMap.type == 2 & scope.row.rewardState == 1 )">已发放</span>
             <el-button size="mini" v-else-if="(extendsMap.type == 1 & scope.row.userType  == 1 )" type="primary" @click="handleEdit(scope.$index,scope.row)">修改</el-button>
             <span v-else></span>
@@ -108,7 +108,7 @@
         </span>
       </el-dialog>-->
     </el-card>
-      <RewardList v-if="!rewardListForm.flag"  @func="getMsgFormSon"></RewardList>
+      <RewardList v-if="!rewardListForm.flag" :isActiviteId = "2"   @func="getMsgFormSon"></RewardList>
   </div>
 </template>
 
@@ -187,9 +187,9 @@ export default {
           }
         ],
         amount: [
-          { required: true, message: "请输入最大为999999的金额", trigger: "blur" },
+          { required: true, message: "请输入1-999999的数值", trigger: "blur" },
           {
-            validator: validatorForm.validateNumberCzMaxReg,
+            validator: validatorForm.validateRechargeReg,//validatePhone
             trigger: "blur"
           }
         ],
@@ -306,6 +306,11 @@ export default {
                 if (res.code === 200) {
                   this.PostFetchData();
                   this.cancleForm();
+                }else{
+                  this.$message({
+                    type: "warning",
+                    message: res.message
+                  });
                 }
               })
               .catch(error => {
@@ -342,6 +347,7 @@ export default {
             type: "success",
             message: "发放成功!"
           });
+          this.PostFetchData();
         })
         .catch(() => {
           this.$message({

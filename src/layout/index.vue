@@ -101,6 +101,10 @@ export default {
       height: 100%;
     }
   }
+  .side-menu-wrapper .el-scrollbar .scrollbar {
+      height: calc(100vh - 64px - 40px)!important;
+      overflow-x: hidden;
+  }
   .main-container{
     float: left;
     height: 100vh;

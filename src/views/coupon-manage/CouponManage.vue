@@ -542,7 +542,7 @@ export default {
     submitForm(formName, isCreate) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          if (this.dialogForm.withAmount <= this.dialogForm.usedAmount) {
+          if (Number(this.dialogForm.withAmount ) < Number(this.dialogForm.usedAmount)) {
             this.$message({
               type: "warning",
               message: "满减金额须大于优惠券面额"
@@ -564,6 +564,7 @@ export default {
           } else {
             this.dialogForm.validDays = null;
           }
+          return false;
           let data = {};
           data["title"] = this.dialogForm.title; //标题
           data["withAmount"] = this.dialogForm.withAmount;

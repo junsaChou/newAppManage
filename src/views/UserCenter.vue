@@ -41,29 +41,17 @@
 <script>
 // import {  mapMutations } from "vuex";
 import { getUserInfoData } from '../utils/cookie'
-
+import { nameArray } from "@/assets/js/mock"
 export default {
   name: 'UserCenter',
   data() {
     return {
       userInfo: {},
-      nameArray: [
-        { label: "身份管理", authCode: "IdentityReview" },
-        { label: "用户管理", authCode: "UserManage" },
-        { label: "订单列表", authCode: "OrderList" },
-        { label: "退单列表", authCode: "ChargeBack" },
-        { label: "广告管理", authCode: "BannerManage" },
-        { label: "消息管理", authCode: "MessageManage" },
-        { label: "优惠券列表", authCode: "CouponManage" },
-        { label: "优惠券发放列表", authCode: "CouponIssue"},
-        { label: "账户列表", authCode: "AccountManage" },
-        { label: "报表统计", authCode: "ReportList" },
-        { label: "活动专区", authCode: "ActivityManage" },
-        { label: "充值列表", authCode: "RechargeManage" },
-      ],
+      nameArray: [],
     }
   },
   created() {
+    this.nameArray = nameArray;
     if(getUserInfoData()){
       this.userInfo = JSON.parse(getUserInfoData())
       let roleArr = this.userInfo.role.split(',');
