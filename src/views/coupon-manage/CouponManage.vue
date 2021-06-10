@@ -564,7 +564,7 @@ export default {
           } else {
             this.dialogForm.validDays = null;
           }
-          return false;
+          // return false;
           let data = {};
           data["title"] = this.dialogForm.title; //标题
           data["withAmount"] = this.dialogForm.withAmount;

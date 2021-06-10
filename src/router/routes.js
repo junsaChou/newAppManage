@@ -49,6 +49,25 @@ export const asyncRoutes = [
     //     ]
     // },
     {
+        path: '/homeLIst',
+        name: 'HomeLIsts',
+        component: Layout,
+        redirect: '/homeLIst',
+        meta: {
+            title: '图表列表',
+            icon: 'vue-dsn-icon-zujian' //el-icon-s-check
+        },
+        children: [{
+            path: 'homeLIst',
+            name: 'HomeLIst',
+            component: () =>
+                import ('../views/Home'),
+            meta: {
+                title: '图表管理'
+            }
+        }, ]
+    },
+    {
         path: '/identity-review',
         name: 'IdentityReview',
         component: Layout,
@@ -125,6 +144,25 @@ export const asyncRoutes = [
         }]
     },
     {
+        path: '/activity-manage',
+        name: 'ActivityManage',
+        component: Layout,
+        redirect: '/activity-manage/activity-manage-list',
+        meta: {
+            title: '活动管理',
+            icon: 'vue-dsn-icon-biaoge' //el-icon-s-check
+        },
+        children: [{
+            path: 'activity-manage-list',
+            name: 'ActivityManageList',
+            component: () =>
+                import ('../views/activity-manage/ActivityManageList'),
+            meta: {
+                title: '活动专区'
+            }
+        }]
+    },
+    {
         path: '/banner-manage',
         name: 'BannerManage',
         component: Layout,
@@ -140,25 +178,6 @@ export const asyncRoutes = [
                 import ('../views/banner-manage/BannerList'),
             meta: {
                 title: '广告管理列表'
-            }
-        }, ]
-    },
-    {
-        path: '/message-manage',
-        name: 'MessageManage',
-        component: Layout,
-        redirect: '/message-manage/message-manage-list',
-        meta: {
-            title: '消息列表',
-            icon: 'vue-dsn-icon-wendang' //el-icon-s-check
-        },
-        children: [{
-            path: 'message-manage-list',
-            name: 'MessageManage',
-            component: () =>
-                import ('../views/message-manage/MessageManage'),
-            meta: {
-                title: '消息管理'
             }
         }, ]
     },
@@ -201,6 +220,82 @@ export const asyncRoutes = [
         }, ]
     },
     {
+        path: '/coupon-use',
+        name: 'CouponUse',
+        component: Layout,
+        redirect: '/coupon-use/coupon-use-list',
+        meta: {
+            title: '优惠券使用列表',
+            icon: 'vue-dsn-icon-wendang' //el-icon-s-check
+        },
+        children: [{
+            path: 'coupon-use-list',
+            name: 'CouponUse',
+            component: () =>
+                import ('../views/coupon-use/CouponUse'),
+            meta: {
+                title: '优惠券使用列表'
+            }
+        }, ]
+    },
+    {
+        path: '/bill-manage',
+        name: 'BillManage',
+        component: Layout,
+        redirect: '/bill-manage/bill-manage-list',
+        meta: {
+            title: '账单管理',
+            icon: 'vue-dsn-icon-wendang' //el-icon-s-check
+        },
+        children: [{
+            path: 'bill-manage-list',
+            name: 'BillManage',
+            component: () =>
+                import ('../views/bill-manage/BillManage'),
+            meta: {
+                title: '账单列表'
+            }
+        }, ]
+    },
+    {
+        path: '/channel-manage',
+        name: 'ChannelManage',
+        component: Layout,
+        redirect: '/channel-manage/channel-manage-list',
+        meta: {
+            title: '渠道管理',
+            icon: 'vue-dsn-icon-wendang' //el-icon-s-check
+        },
+        children: [{
+            path: 'channel-manage-list',
+            name: 'ChannelManage',
+            component: () =>
+                import ('../views/channel-manage/ChannelManage'),
+            meta: {
+                title: '渠道列表'
+            }
+        }, ]
+    },
+    {
+        path: '/channel-link-manage',
+        name: 'ChannelLinkManage',
+        component: Layout,
+        redirect: '/channel-link-manage/channel-link-manage-list',
+        meta: {
+            title: '渠道链接管理',
+            icon: 'vue-dsn-icon-wendang' //el-icon-s-check
+        },
+        children: [{
+            path: 'channel-link-manage-list',
+            name: 'ChannelLinkManage',
+            component: () =>
+                import ('../views/channel-link-manage/ChannelLinkManage'),
+            meta: {
+                title: '渠道链接列表'
+            }
+        }, ]
+    },
+    {
         path: '/account-manage',
         name: 'AccountManage',
         component: Layout,
@@ -220,23 +315,23 @@ export const asyncRoutes = [
         }, ]
     },
     {
-        path: '/activity-manage',
-        name: 'ActivityManage',
+        path: '/message-manage',
+        name: 'MessageManage',
         component: Layout,
-        redirect: '/activity-manage/activity-manage-list',
+        redirect: '/message-manage/message-manage-list',
         meta: {
-            title: '活动管理',
-            icon: 'vue-dsn-icon-biaoge' //el-icon-s-check
+            title: '消息列表',
+            icon: 'vue-dsn-icon-wendang' //el-icon-s-check
         },
         children: [{
-            path: 'activity-manage-list',
-            name: 'ActivityManageList',
+            path: 'message-manage-list',
+            name: 'MessageManage',
             component: () =>
-                import ('../views/activity-manage/ActivityManageList'),
+                import ('../views/message-manage/MessageManage'),
             meta: {
-                title: '活动专区'
+                title: '消息管理'
             }
-        }]
+        }, ]
     },
     {
         path: '/recharge-manage',

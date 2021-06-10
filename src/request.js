@@ -5,7 +5,7 @@ import { getToken, removeToken } from './utils/cookie'
 
 // 创建axios实例
 const service = axois.create({
-    // baseURL: 'http://test.future-better.com/qd-admin',
+    baseURL: 'http://test.future-better.com/qd-admin',
     // baseURL: 'http://192.168.0.129:8703/qd-admin',
     // baseURL: 'https://www.jinniuzhanye.com/qd-admin', // api 的 base_url process.env.VUE_APP_BASE_API //http://test.future-better.com/qd-admin/  
     timeout: 120000 // 请求超时时间
@@ -98,4 +98,39 @@ export function postBody(url, data) { //post 请求 parmas
                 reject(err.data)
             })
     })
+}
+export function postBlob(url, data) { //post 请求 parmas
+    return new Promise((resolve, reject) => {
+        // console.log(data)
+        service.post(url, data,{responseType:"arraybuffer"})
+            .then(res => {
+                resolve(res.data);
+            })
+            .catch(err => {
+                reject(err.data)
+            })
+    })
+}
+export function postParamsBlob(url, params) { //post 请求 parmas blob
+    return new Promise((resolve, reject) => {
+        // console.log(data)
+        service.post(url, null, { params,responseType:"arraybuffer" })
+            .then(res => {
+                resolve(res.data);
+            })
+            .catch(err => {
+                reject(err.data)
+            })
+    })
+}
+export function getBlob(url, params) { //get 请求  
+    return new Promise((resolve, reject) => {
+        service.get(url, {
+            params:params,
+            responseType:"blob"}).then(res => {
+            resolve(res.data);
+        }).catch(err => {
+            reject(err.data)
+        })
+    });
 }

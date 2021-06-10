@@ -31,8 +31,8 @@ module.exports = {
             errors: true
         },
         proxy: {
-            '/api': { // 被代理的接口名   192.168.0.129:8703  线上的 地址  http://www.jinniuzhanye.com/qd-admin   测试地址 
-                target: 'http://192.168.0.130:8703/qd-admin', // url地址 http://test.future-better.com/qd-admin/   http://42.194.194.178:3000
+            '/': { // 被代理的接口名   192.168.0.129:8703  线上的 地址  http://www.jinniuzhanye.com/qd-admin   测试地址 
+                target: 'http://test.future-better.com/qd-admin/', // url地址 http://test.future-better.com/qd-admin/   http://42.194.194.178:3000
                 changeOrigin: true, // 发送请求头中 host 是否设置成 target
                 pathRewrite: { // 重定向
                     '^/api': ''

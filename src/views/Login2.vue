@@ -69,8 +69,8 @@ import Background from "../assets/img/login-background2.png";
 import axios from "axios";
 import { validatAlphabetsNum } from "@/assets/js/validate";
 // import { login,getImageCaptcha } from "../api/login";
-//登录 获取用户信息
-import { apiLogin, apiGetUserInfo } from "../api/apilist";
+//登录 获取用户信息 获取验证码
+import { apiLogin, apiGetUserInfo,apiGetImageCaptcha } from "../api/apilist";
 import { getUserInfo } from "../utils/cookie";
 import { mapGetters, mapMutations } from "vuex";
 export default {
@@ -173,15 +173,11 @@ export default {
       if ((this.loginForm.username != "") & (this.loginForm.password != "")) {
         const params = {
           account: this.loginForm.username
-        };
-        this.$axios({
-          url: "/api/backstageUser/getImageCaptcha",
-          params,
-          method: "get",
-          responseType: "blob" // 表明返回服务器返回的数据类型
-        })
+        }
+        apiGetImageCaptcha(params)
           .then(res => {
-            let blob = new Blob([res.data], { type: "image/jpg" });
+            console.log(res)
+            let blob = new Blob([res], { type: "image/jpg" });
             var Fr = new FileReader();
             Fr.readAsDataURL(blob);
             Fr.onload = event => {

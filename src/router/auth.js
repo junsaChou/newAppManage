@@ -21,8 +21,20 @@ router.beforeEach((to, from, next) => {
                 });
             })
             router.options.routes = [...staticMap, ...routerMap]
+            // console.log(router.options.routes)
+            // console.log(to.matched);
+            // console.log(routerMap)
+            console.log(to.name)
+            // let routerBox =  router.options.routes;
+            // routerBox.forEach(k=>{
+            //     console.log(k.name);
+            //     if(k.name.indexOf(to.name) ==-1){
+
+            //     }
+            // })
+            console.log(from)
             if (to.matched.length === 0) { //如果未匹配到路由
-                from.path ? next({ path: from.path }) : next({ path: '/' }); //如果上级也未匹配到路由则跳转主页面，如果上级能匹配到则转上级路由
+                from.path ? next({ path: from.path }) : next({ path: '401' }); //如果上级也未匹配到路由则跳转主页面，如果上级能匹配到则转上级路由
             } else {
                 next(); //如果匹配到正确跳转
             }

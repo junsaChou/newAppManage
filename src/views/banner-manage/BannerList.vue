@@ -230,7 +230,7 @@ import {
 // import excel from "../../utils/excel";
 import validatorForm from "../../assets/js/validatorForm";
 import Pagination from "../../components/Pagination";
-import { validatAlphabetsNum } from "@/assets/js/validate";
+
 // import Hints from '../../components/Hints'
 
 export default {

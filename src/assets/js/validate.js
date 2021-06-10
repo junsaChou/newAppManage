@@ -276,3 +276,16 @@ export function validatenull(val) {
     }
     return false
 }
+export function excelList(res,name){
+    const link = document.createElement('a');
+    let blob = new Blob([res], {type: 'application/vnd.ms-excel;charset=utf-8'});
+    link.style.display = 'none';
+    //设置连接
+    link.href = window.URL.createObjectURL(blob);
+    link.download = `${name}.xlsx`; 
+    document.body.appendChild(link);
+      //模拟点击事件
+    link.click();
+    document.body.removeChild(link);
+
+}

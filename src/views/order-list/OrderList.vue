@@ -164,8 +164,6 @@
           <template slot-scope="scope">
             <span>{{
                scope.row.chargebackState == 0 ? (scope.row.lendingState == 0 ? ( scope.row.discardState == 0 ? (  scope.row.orderState == 0 ? '待抢' : '已抢' ) : '弃置' ) :'放款' ): scope.row.chargebackState == 1 ? '拒绝退单' : scope.row.chargebackState == 2 ? '待审核' : scope.row.chargebackState == 3 ? '半价退' : '全款退' 
-               
-               
                 }}</span>
           </template>
         </el-table-column>
