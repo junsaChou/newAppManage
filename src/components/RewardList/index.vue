@@ -67,7 +67,7 @@ export default {
     }
   },
   created(){
-    console.log( this.isActiviteId )
+
   },
   data() {
     return {

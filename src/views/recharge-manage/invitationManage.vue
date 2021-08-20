@@ -1,15 +1,15 @@
 <template>
   <div class="table-classic-wrapper">
-    <el-card shadow="always" >
+    <el-card >
       <!-- 查询栏 -->
       <el-form
         ref="searchForm"
         :inline="true"
-        :model="listQuery"
-        label-width="90px"
+        :model="listQuery" 
+        label-width="100px"
         class="search-form"
       >
-        <el-form-item label="时间">
+      <el-form-item label="时间">
           <el-date-picker
             v-model="createMap"
             type="datetimerange"
@@ -22,25 +22,51 @@
             @change="changePicker"
           ></el-date-picker>
         </el-form-item>
-        <el-form-item label="交易账号">
-          <el-input v-model="listQuery.account " placeholder="请填写" />
+        <el-form-item label="手机号">
+          <el-input   v-model="listQuery.phone" placeholder="请输入邀请人/被邀请人" />
         </el-form-item>
-        <el-form-item label="交易类型">
-          <el-select v-model="listQuery.payType ">
+        <el-form-item label="邀请进度">
+          <el-select v-model="listQuery.authState " placeholder="请选择">
             <el-option value label="全部" />
-            <el-option :value="1" label="消费" />
-            <el-option :value="2" label="充值" />
-            <el-option :value="3" label="退单" />
-            <el-option :value="4" label="活动" />
+            <el-option :value="1" label="注册" />
+            <el-option :value="2" label="认证" />
+            <el-option :value="3" label="充值" />
+            
           </el-select>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="onSubmit">搜索</el-button>
           <el-button type="warning" @click="onReset">重置</el-button>
-           <el-button type="success" @click="exportList">导出</el-button>
+          <el-button type="success" @click="exportList">导出</el-button>
         </el-form-item>
       </el-form>
-      <!-- 操作栏 -->
+      <div class="control-btns">
+        <div>
+          <span class="left">邀请注册总人数:</span>
+          <span>{{extendsMap.countPregister}}</span>
+          <!-- <el-input  v-model="extendsMap.loginIntegral"  > -->
+        </div>
+        <div>
+          <span class="left">邀请认证总人数:</span>
+          <span>{{extendsMap.countApprove}}</span>
+        </div>
+        <div>
+          <span class="left">首次充值总人数:</span>
+          <span>{{extendsMap.countRecharge}}</span>
+        </div>
+         <div>
+          <span class="left">首次抢单总人数:</span>
+          <span>{{extendsMap.countBuy}}</span>
+        </div>
+        <div>
+          <span class="left">充值总金额:</span>
+          <span>{{extendsMap.sumAmount}}</span>
+        </div>
+        <div>
+          <span class="left">抢单总数量:</span>
+          <span>{{extendsMap.countOrder}}</span>
+        </div>
+      </div>
       <!-- 表格栏 -->
       <el-table
         ref="multipleTable"
@@ -50,27 +76,33 @@
         style="width: 100%"
         size="medium"
       >
+        <!-- <el-table-column type="selection" width="60" /> -->
         <el-table-column
           show-overflow-tooltip
-          prop="account"
-          label="交易账户"
+          label="邀请人"
+          prop="inviterAccount"
           align="center"
+          width="90"
         />
-        <el-table-column show-overflow-tooltip  label="类型" align="center" >
-              <template slot-scope="scope">{{ scope.row.payType == '1'?'消费':scope.row.payType == '2'?'充值':scope.row.payType == '3'?'退单':'活动' }}</template>
-        </el-table-column>
-        <el-table-column show-overflow-tooltip prop="orderAmount" label="金额" align="center" />
-        <el-table-column show-overflow-tooltip prop="balanceBefore" label="账户余额" align="center" />
-        <el-table-column show-overflow-tooltip  label="交易时间" align="center" > 
-         <template slot-scope="scope">
-            <span>{{scope.row.createTime | formatDate}}</span>
-          </template>
-        </el-table-column>
-        <!-- <el-table-column label="操作" align="center" width="100">
+        <el-table-column show-overflow-tooltip prop="inviteeAccount" label="被邀请人" align="center" /> 
+        <el-table-column show-overflow-tooltip prop="inviterCount" label="邀请获得" align="center" />
+        <el-table-column show-overflow-tooltip  label="注册" align="center" >
           <template slot-scope="scope">
-            <el-button size="mini" type="primary" @click="views(scope.$index, scope.row)">查看详情</el-button>
+            <span>{{scope.row.registerTime | formatDate}}</span>
           </template>
-        </el-table-column> -->
+        </el-table-column>
+        <el-table-column show-overflow-tooltip label="认证" align="center" >
+          <template slot-scope="scope">
+            <span v-if="scope.row.approveTime != ''">{{scope.row.approveTime | formatDate}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column show-overflow-tooltip prop="goldIntegral" label="首次充值" align="center" >
+          <template slot-scope="scope">
+            <span v-if="scope.row.firstRecharge != ''">{{scope.row.firstRecharge | formatDate}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column show-overflow-tooltip prop="sumRecharge" label="充值金额" align="center" />
+        <el-table-column show-overflow-tooltip prop="countBuy" label="抢单数量" align="center" />
       </el-table>
       <!-- 分页栏 -->
       <Pagination
@@ -79,28 +111,28 @@
         :limit.sync="listQuery.pageSize"
         @pagination="PostFetchData"
       />
-      <!-- 新增/编辑 弹出栏 -->
     </el-card>
   </div>
 </template>
 
 <script>
-//账单管理列表   导出
 import {
-  apiGetPayRecordList,
-  apiPayRecordExport
+  apiGetInvitationList,
+  apiInvitationListExport
 } from "../../api/apilist";
-// import excel from "../../utils/excel";
+import { excelList } from "../../assets/js/validate"
 import Pagination from "../../components/Pagination";
-import { excelList } from "../../assets/js/validate";//导出 excel 方法
 // import Hints from '../../components/Hints'
+
 export default {
   name: "Table",
-  components: { Pagination },
+  components: { Pagination},
   data() {
     return {
-        //快捷选择时间
-       pickerOptions: {
+      // 数据列表加载动画
+      listLoading: true,
+             //快捷选择时间
+      pickerOptions: {
          // 设置不能选择的日期
         onPick: ({ maxDate, minDate }) => {
             this.choiceDate0 = minDate.getTime();
@@ -124,47 +156,38 @@ export default {
                 return time.getTime() > newDate;
             }
       },
-      // 数据列表加载动画
-      listLoading: true,
       // 查询列表参数对象
+      createMap:null,//创建日期map
       listQuery: {
-        payType :null,//交易类型 记录类型 1 充值 2消费 ,
-        account:null,//优惠券标题
+        phone: null, //手机号
+        authState: null, // 邀请进度
         startTime : null,//创建时间
         endTime  : null,//结束时间
         pageIndex: 1, //页码 ,
         pageSize: 10 //每页数据量大小 ,
       },
-      createMap:null,//创建日期map
-      // 新增/编辑提交表单对象
+      extendsMap:{},//总积分数值
       // 数据总条数
       total: 0,
       // 表格数据数组
-
+      pageIndex: 1, //页码 ,
+      pageSize: 10, //每页数据量大小 ,
       tableData: [],
-    
       // 新增/编辑 弹出框显示/隐藏
-
-      // 表单校验 trigger: ['blur', 'change'] 为多个事件触发
-      // 防止多次连续提交表单
-      isSubmit: false,
-      // 导入数据 弹出框显示/隐藏
-      importVisible: false
-      //是否出现审核图片
     };
   },
-  created() {
+  created(){
     this.PostFetchData();
   },
   methods: {
-    //渠道导出
+        //渠道导出
     exportList(){
-      let  {account,endTime,startTime,payType } = this.listQuery;
-      let data = { account,endTime,startTime,payType };
-      apiPayRecordExport(data) 
+      let data = Object.assign({}, this.listQuery)
+      delete data.pageSize;
+      delete data.pageIndex;
+      apiInvitationListExport(data) 
        .then(res => {
-          console.log(res);
-          excelList(res,'账单列表')
+          excelList(res,'邀请管理')
           this.timer = setTimeout(()=>{
               this.$message.success('导出成功');
           }, 3000)
@@ -174,26 +197,6 @@ export default {
                 type: "error",
                 message: '导出失败'
             });
-          this.listLoading = false;
-        });
-    },
-    // 获取数据列表
-    PostFetchData() {
-      this.listLoading = true;
-      // 获取审核数据列表接口
-      let data = this.listQuery;
-      // delete data.dateTime;
-      apiGetPayRecordList(data)
-        .then(res => {
-          console.log(res);
-          if (res.code === 200) {
-            this.total = res.data.total;
-            this.tableData = res.data.list;
-            this.listLoading = false;
-          }
-        })
-        .catch(error => {
-          console.log(error);
           this.listLoading = false;
         });
     },
@@ -208,6 +211,27 @@ export default {
       }
       console.log(val);
     },
+    // 获取数据列表
+    PostFetchData() {
+      this.listLoading = true;
+      // 获取审核数据列表接口
+      let data = this.listQuery;
+      // delete data.dateTime;
+      apiGetInvitationList(data)
+        .then(res => {
+          console.log(res);
+          if (res.code === 200) {
+            this.total = res.data.total;
+            this.tableData = res.data.list;
+            this.extendsMap = res.data.extendsMap;
+            this.listLoading = false;
+          }
+        })
+        .catch(error => {
+          console.log(error);
+          this.listLoading = false;
+        });
+    },
     // 查询数据
     onSubmit() {
       this.listQuery.pageIndex = 1;
@@ -220,16 +244,18 @@ export default {
         that.listQuery[key] = null;
       });
       this.createMap = null;
+      // this.listQuery.authState = 1;
       this.listQuery.pageIndex = 1;
       this.listQuery.pageSize = 10;
       this.PostFetchData();
       // this.$refs["searchForm"].resetFields(); //清空表单
-    }
+    },
   }
 };
 </script>
 
 <style lang="less">
+
 .table-classic-wrapper {
   .el-card {
     min-height: 656px;
@@ -249,6 +275,16 @@ export default {
   }
   .control-btns {
     margin-bottom: 8px;
+    display: flex;
+    // padding-left: 20px;
+    div{
+      margin: 0 25px;
+      color:rgb(217, 0, 27);
+      span{
+        font-size: 18px;
+        font-weight: bold;
+      }
+    }
   }
   .search-form {
     padding-top: 18px;

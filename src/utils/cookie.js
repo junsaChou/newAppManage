@@ -17,7 +17,7 @@ export function setToken(token) {
 }
 
 export function removeToken() {
-    return Cookies.remove(TokenKey)
+    Cookies.remove(TokenKey)
 }
 export function removeUserInfo() {
     return Cookies.remove(userInfoList)

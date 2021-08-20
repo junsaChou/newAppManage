@@ -1,79 +1,7 @@
 <template>
   <div class="table-classic-wrapper">
-    <!-- <Hints>
-      <template slot="hintName">Table表格组件</template>
-      <template slot="hintInfo">
-        <p>element-Table：使用elementUI的Table组件，可用于展示多条结构类似的数据，并对其进行相关操作</p>
-        <p>地址：访问 <el-link type="success" href="https://element.eleme.cn/2.13/TableClassic.vue#/zh-CN/component/table" target="_blank">element-Table</el-link></p>
-      </template>
-    </Hints>-->
-    <el-card shadow="always" v-show="couponList.flag">
-      <el-form
-        ref="searchForm"
-        :inline="true"
-        size="small"
-        :model="searchUser"
-        label-width="90px"
-        class="search-form"
-      >
-        <el-form-item prop="realName" label="姓名">
-          <el-input clearable v-model="searchUser.realName " />
-        </el-form-item>
-        <el-form-item prop="account " label="手机号">
-          <el-input clearable v-model="searchUser.account " minlength="11" maxlength="11" />
-        </el-form-item>
-        <el-form-item prop="idCard" label="身份证号">
-          <el-input clearable v-model="searchUser.idCard" minlength="16" maxlength="18" />
-        </el-form-item>
-        <el-form-item prop="channelSource" label="来源渠道">
-          <el-input clearable v-model="searchUser.channelSource" />
-        </el-form-item>
-        <el-form-item prop="status" label="审核状态">
-          <!-- userState (string, optional): 用户状态0冻结 1正常 -->
-          <el-select clearable v-model="searchUser.accountState">
-            <el-option label="全部" value></el-option>
-            <el-option label="审核失败" value="0"></el-option>
-            <el-option label="审核通过" value="1"></el-option>
-            <el-option label="审核中" value="2"></el-option>
-            <el-option label="未审核" value="3"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item prop="organizeName" label="公司名称">
-          <el-input clearable v-model="searchUser.organizeName" />
-        </el-form-item>
-        <el-form-item prop="areaName" label="认证城市">
-          <el-input clearable v-model="searchUser.areaName" />
-        </el-form-item>
-        <el-form-item label="日期范围">
-          <el-date-picker
-            v-model="dateTime"
-            type="datetimerange"
-            @change="upDate"
-            :picker-options="pickerOptions"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            align="right"
-          ></el-date-picker>
-        </el-form-item>
-        <el-form-item prop="status" label="用户状态">
-          <!-- userState (string, optional): 用户状态0冻结 1正常 -->
-          <el-select clearable v-model="searchUser.userState">
-            <el-option label="全部" value></el-option>
-            <el-option label="冻结" value="0"></el-option>
-            <el-option label="正常" value="1"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item prop="remark " label="备注">
-          <el-input clearable v-model="searchUser.remark " />
-        </el-form-item>
-        <el-form-item>
-          <!-- <el-button type="success" @click="getDataUser">搜索</el-button> -->
-          <el-button type="primary" @click="onSubmit">查询</el-button>
-          <el-button type="warning" @click="onReset">重置</el-button>
-        </el-form-item>
-      </el-form>
+    <el-card shadow="always" v-show="couponList.flag  " v-if="UserManageDetailList.flag" >
+      <mixSearch  v-model="searchUser"  :fields="searchFields" ref="form"  @reset="onReset"/>
       <!-- 表格栏 -->
       <el-table
         ref="multipleTable"
@@ -175,6 +103,22 @@
             <span>{{scope.row.lastLoginTime | formatDate}}</span>
           </template>
         </el-table-column>
+        <el-table-column :resizable="false" show-overflow-tooltip label="会员等级" align="center">
+          <template slot-scope="scope">
+            <span>{{ scope.row.accountState =='0'?'金卡VIP': scope.row.accountState =='1'?'银卡VIP':  '普通VIP' }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          :resizable="false"
+          show-overflow-tooltip
+          label="会员有效期"
+          width="180"
+          align="center"
+        >
+          <template slot-scope="scope">
+            <span>{{scope.row.createTime | formatDate}}</span>
+          </template>
+        </el-table-column>
         <el-table-column
           :resizable="false"
           show-overflow-tooltip
@@ -204,22 +148,23 @@
             />
           </template>
         </el-table-column>
-        <el-table-column :resizable="false" label="操作" width="400" align="center">
+        <el-table-column :resizable="false" label="操作" width="440" align="center">
           <template slot-scope="scope">
-            <el-button type="danger" @click="handleEdit(scope.$index, scope.row,'remark')">备注</el-button>
+            <el-button type="danger" size="small" @click="handleEdit(scope.$index, scope.row,'remark')">备注</el-button>
             <!-- <el-button type="danger" @click="viewMemo(scope.row.id)">查看备注</el-button> -->
-            <el-button type="danger" @click="handleEdit(scope.$index, scope.row,'phone')">修改号码</el-button>
-            <el-button type="danger" @click="resetForm(scope.$index,scope.row.id)">重置认证</el-button>
+            <el-button type="danger" size="small" @click="handleEdit(scope.$index, scope.row,'phone')">修改号码</el-button>
+            <el-button type="danger" size="small" @click="resetForm(scope.$index,scope.row.id)">重置认证</el-button>
             <!-- <el-button type="danger" @click="freeze(scope.row.id)">解冻</el-button> -->
-            <el-button type="danger" @click="viewCoupon(scope.row.id)">查看优惠券</el-button>
+            <el-button type="danger" size="small" @click="viewCoupon(scope.row.id)">查看优惠券</el-button>
+            <el-button type="primary" size="small" @click="viewUserManageDetail(scope.row.id)">详情</el-button>
           </template>
         </el-table-column>
       </el-table>
       <!-- 分页栏 -->
       <Pagination
         :total="total"
-        :page.sync="searchUser.pageIndex"
-        :limit.sync="searchUser.pageSize"
+        :page.sync="page.pageIndex"
+        :limit.sync="page.pageSize"
         @pagination="PostFetchData"
       />
       <!-- 新增/编辑 弹出栏 -->
@@ -245,6 +190,7 @@
       </el-dialog>
     </el-card>
     <Coupon v-show="!couponList.flag" :userId="couponList.id" @func="getMsgFormSon"></Coupon>
+    <UserManageView v-show="!UserManageDetailList.flag" :userId="UserManageDetailList.id" @func="getMsgFormSonUser"></UserManageView>
   </div>
 </template>
 
@@ -256,65 +202,77 @@ import {
 } from "../../api/apilist"; //客户用户列表 更新用户列表 重置认证
 import Pagination from "../../components/Pagination";
 import Coupon from "../../components/Coupon"; //优惠券组件
-// import Hints from '../../components/Hints'
+// import UserManageDetail from "../../components/UserManageDetail"; //用户详情
+import UserManageView from "../../components/UserManageView"; //用户详情
+import mixSearch from "../../components/mixSearch";
 
 export default {
   name: "Table",
-  components: { Pagination, Coupon },
+  components: { Pagination, Coupon,UserManageView,mixSearch },
   data() {
     return {
-      //快捷选择时间
-      pickerOptions: {
-        shortcuts: [
-          {
-            text: "最近一周",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit("pick", [start, end]);
-            }
-          },
-          {
-            text: "最近一个月",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              picker.$emit("pick", [start, end]);
-            }
-          },
-          {
-            text: "最近三个月",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-              picker.$emit("pick", [start, end]);
-            }
-          }
-        ]
-      },
       // 数据列表加载动画
       listLoading: true,
       // 查询列表参数对象
-      searchUser: {
-        account: null, //登陆账户 ,
-        accountState: null, //账户状态0审核未通 1审核通过 2审核中 3未审核 ,
-        areaName: null, //地区名称 ,
-        channelSource: null, //来源渠道 ,
+      searchFields: [
+        { span: 2, prop: 'realName', name: '姓名', placeholder: '请输入' },
+        { span: 2, prop: 'account', name: '手机号', placeholder: '请输入' },
+        { span: 2, prop: 'idCard', name: '身份证号', placeholder: '请输入' },
+        { span: 2, prop: 'channelSource', name: '来源渠道', placeholder: '请输入' },
+        { span: 2, prop: 'accountState', name: '审核状态', placeholder: '请选择', type: 'select',
+           options: [
+                    { label: '全部', value: null},
+                    { label: '审核失败', value: 0 },
+                    { label: '审核通过', value: 1 },
+                    { label: '审核中', value: 2 },
+                    { label: '未审核', value: 3 }
+                    ]
+        },
+        {span: 2, prop: 'organizeName', name:'公司名称', placeholder: '请输入'},
+        {span: 2, prop: 'areaName', name:'认证城市', placeholder: '请输入' },
+        // {span: 2, prop: 'operatorUser', name: '发放人', placeholder: '请输入' },
+        {span: 6, type: 'pickerOptionsPicker', name:'日期范围', placeholder: '日期范围',prop:'dateTime'},
+        { span: 2, prop: 'userState', name: '用户状态', placeholder: '请选择', type: 'select',
+           options: [
+                    { label: '全部', value: null},
+                    { label: '冻结', value: 0 },
+                    { label: '正常', value: 1 }
+                    ]
+        },
+        {span: 2, prop: 'remark', name: '备注', placeholder: '请输入' },
+        {
+          span: 2,
+          type: 'reset',
+          style:'warning',
+          class:'resetName',
+          label: '重置',
+          options: [
+            { label: '搜索', type: 'primary', click: this.onSubmit }
+          ],
+        },
+      ],
+      page:{
         pageIndex: 1, //页码 ,
-        pageSize: 10, //每页数据
-        // id: "", //id ,
-        idCard: null, //身份证号 ,
-        organizeName: null, //组织名称 ,
-        realName: null, //姓名 ,
-        remark: null, //备注 ,
-        userState: null, //用户状态0冻结 1正常
-        startTime: null, //开始时间
-        endTime: null //节省时间
+        pageSize: 10, //每页数据量大小 ,
       },
-      dateTime: [], //日期范围
+      searchUser: {
+        // memberShip:null,//会员等级
+        // account: null, //登陆账户 ,
+        // accountState: null, //账户状态0审核未通 1审核通过 2审核中 3未审核 ,
+        // areaName: null, //地区名称 ,
+        // channelSource: null, //来源渠道 ,
+        // pageIndex: 1, //页码 ,
+        // pageSize: 10, //每页数据
+        // // id: "", //id ,
+        // idCard: null, //身份证号 ,
+        // organizeName: null, //组织名称 ,
+        // realName: null, //姓名 ,
+        // remark: null, //备注 ,
+        // userState: null, //用户状态0冻结 1正常
+        // startTime: null, //开始时间
+        // endTime: null //节省时间
+      },
+      // dateTime: [], //日期范围
       // 新增/编辑提交表单对象
       dialogForm: {
         id: "", //传入的id
@@ -323,6 +281,10 @@ export default {
         isRemark: true //判断是否是备注
       },
       couponList: {
+        flag: true,
+        id: "" //所传的id
+      },
+      UserManageDetailList: {
         flag: true,
         id: "" //所传的id
       },
@@ -354,20 +316,8 @@ export default {
     this.PostFetchData();
   },
   methods: {
-    //下拉框事件
-    upDate(val) {
-      //dom 代表每个时间框 arr 代表给谁赋值
-      if (val) {
-        this.searchUser.startTime = val[0];
-        this.searchUser.endTime = val[1];
-      } else {
-        this.searchUser.startTime = null;
-        this.searchUser.endTime = null;
-      }
-    },
     // 重置认证
     resetForm(index, row) {
-      console.log(index, row);
       this.$confirm("此操作将重置认证, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
@@ -394,7 +344,6 @@ export default {
       let data = { id: id };
       apiResetCertification(data)
         .then(res => {
-          console.log(res);
           if (res.code === 200) {
             this.PostFetchData(); //重新请求接口
           } else {
@@ -405,7 +354,6 @@ export default {
           }
         })
         .catch(error => {
-          console.log(error);
           this.listLoading = false;
         });
     },
@@ -414,8 +362,15 @@ export default {
       this.couponList.id = String(id);
       this.couponList.flag = false;
     },
+    viewUserManageDetail(id){
+      this.UserManageDetailList.id = String(id);
+      this.UserManageDetailList.flag = false;
+    },
     getMsgFormSon(data) {
       this.couponList.flag = data;
+    },
+    getMsgFormSonUser(data){
+      this.UserManageDetailList.flag = data;
     },
     //修改备注等操作
     handleEdit(index, row, val) {
@@ -464,8 +419,10 @@ export default {
     PostFetchData() {
       this.listLoading = true;
       // 获取审核数据列表接口
-      console.log(this.searchUser);
-      let data = this.searchUser;
+      let { pageIndex,pageSize } = this.page;
+      let searchData = Object.assign({}, this.searchUser);
+      this.upDateTime(searchData.dateTime,'startTime', 'endTime','dateTime',searchData);
+      let data = { ...searchData,pageIndex,pageSize}
       apiGetUserInfoList(data)
         .then(res => {
           console.log(res);
@@ -483,7 +440,6 @@ export default {
     apiUpdateUserInfoInit(data) {
       //update 的更新接口
       // let data = this.searchUser;
-      console.log(data);
       // return false
       apiUpdateUserInfo(data)
         .then(res => {
@@ -504,6 +460,7 @@ export default {
     },
     // 查询数据
     onSubmit() {
+      this.page.pageIndex = 1;
       this.PostFetchData();
     },
     //重置数据
@@ -512,10 +469,8 @@ export default {
       Object.keys(that.searchUser).forEach(key => {
         that.searchUser[key] = null;
       });
-      this.searchUser.pageIndex = 1;
-      this.searchUser.pageSize = 10;
-      this.dateTime = null;
-      this.PostFetchData();
+      that.onSubmit();
+      // this.PostFetchData();
     },
     // 新增/编辑表单确认提交
     submitForm(formName) {
@@ -524,7 +479,6 @@ export default {
           // 此处添加 新增/编辑数据的接口 新增成功后调用PostFetchData方法更新列表
           // 先 this.isSubmit = true 接口返回成功后 再 this.isSubmit = false
           let data = this.dialogForm;
-          console.log(data);
           delete data.isRemark;
           // return false;
           this.apiUpdateUserInfoInit(data);

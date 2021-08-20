@@ -2,7 +2,8 @@
   <div class="table-classic-wrapper">
     <el-card shadow="always">
       <!-- 查询栏 -->
-      <el-form
+      <mixSearch  v-model="listQuery"  :fields="searchFields" ref="form"  @reset="onReset"/>
+      <!-- <el-form
         ref="searchForm"
         :inline="true"
         :model="listQuery"
@@ -23,7 +24,7 @@
           <el-button type="primary" @click="onSubmit">搜索</el-button>
           <el-button type="warning" @click="onReset">重置</el-button>
         </el-form-item>
-      </el-form>
+      </el-form> -->
       <!-- 操作栏 -->
       <div class="control-btns">
         <el-button type="primary" @click="handleCreate">新增优惠券</el-button>
@@ -79,8 +80,8 @@
       <!-- 分页栏 -->
       <Pagination
         :total="total"
-        :page.sync="listQuery.pageIndex"
-        :limit.sync="listQuery.pageSize"
+        :page.sync="page.pageIndex"
+        :limit.sync="page.pageSize"
         @pagination="PostFetchData"
       />
       <!-- 新增/编辑 弹出栏 -->
@@ -216,11 +217,11 @@ import {
 import validatorForm from "../../assets/js/validatorForm";
 import Pagination from "../../components/Pagination";
 import { isMobile } from "@/assets/js/validate";
-// import Hints from '../../components/Hints'
+import mixSearch from "../../components/mixSearch";
 
 export default {
   name: "Table",
-  components: { Pagination },
+  components: { Pagination,mixSearch },
   data() {
     return {
       //快捷选择时间
@@ -229,14 +230,39 @@ export default {
           return time.getTime() < Date.now() - 8.64e7; //如果没有后面的-8.64e7就是不可以选择今天的
         }
       },
+      page:{
+        pageIndex: 1, //页码 ,
+        pageSize: 10, //每页数据量大小 ,
+      },
+      searchFields: [
+        { span: 2, prop: 'title', name: '优惠券名称', placeholder: '请填写' },
+        { span: 2, prop: 'type', name: '适用范围', placeholder: '请选择', type: 'select',
+           options: [
+                    { label: '全部', value: null },
+                    { label: '充值', value: 0 },
+                    { label: '抵扣', value: 1 }
+                    ]
+        },
+        {
+          span: 2,
+          type: 'reset',
+          style:'warning',
+          class:'resetName',
+          label: '重置',
+          options: [
+            { label: '搜索', type: 'primary', click: this.onSubmit },
+            // { label: '重置', type: 'warning', click: this.onReset },
+          ],
+        },
+      ],
       // 数据列表加载动画
       listLoading: true,
       // 查询列表参数对象
       listQuery: {
-        title: null, //标题
-        type: null, //适用范围
-        pageIndex: 1, //页码 ,
-        pageSize: 10 //每页数据量大小 ,
+        // title: null, //标题
+        // type: null, //适用范围
+        // pageIndex: 1, //页码 ,
+        // pageSize: 10 //每页数据量大小 ,
       },
       // 新增/编辑提交表单对象
       dialogForm: {
@@ -462,7 +488,10 @@ export default {
     PostFetchData() {
       this.listLoading = true;
       // 获取审核数据列表接口
-      let data = this.listQuery;
+      // let data = this.listQuery;
+      let { pageIndex,pageSize } = this.page;
+      let searchData = Object.assign({}, this.listQuery);
+      let data = { ...searchData,pageIndex,pageSize}
       // delete data.dateTime;
       apiGetCouponList(data)
         .then(res => {
@@ -480,8 +509,7 @@ export default {
     },
     // 查询数据
     onSubmit() {
-      // this.listQuery.currentPage = 1;
-
+      this.page.pageIndex = 1;
       this.PostFetchData();
     },
     //重置数据
@@ -490,9 +518,7 @@ export default {
       Object.keys(that.listQuery).forEach(key => {
         that.listQuery[key] = null;
       });
-      this.listQuery.pageIndex = 1;
-      this.listQuery.pageSize = 10;
-      this.PostFetchData();
+      that.onSubmit();
       // this.$refs["searchForm"].resetFields(); //清空表单
     },
     //修改优惠券规则 提交

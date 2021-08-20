@@ -1,15 +1,22 @@
 <template>
-  <el-dropdown class="user-avatar-wrapper" @command="handleCommand">
-    <div class="avatar-box">
-      <el-avatar size="small" :src="avatarSrc" />
-      <i class="el-icon-caret-bottom" />
-    </div>
-    <el-dropdown-menu slot="dropdown">
-      <!-- <el-dropdown-item command="userCenter">个人中心</el-dropdown-item> -->
-      <el-dropdown-item command="openPwd">修改密码</el-dropdown-item>
-      <el-dropdown-item command="loginOut">退出登录</el-dropdown-item>
-    </el-dropdown-menu>
-  </el-dropdown>
+  <div class="avatar-wrap">
+      <el-dropdown class="user-avatar-wrapper" @command="handleCommand">
+     
+      <div class="avatar-box">
+        <el-avatar size="small" :src="avatarSrc" />
+        <i class="el-icon-caret-bottom" />
+      </div>
+      <el-dropdown-menu slot="dropdown">
+        <!-- <el-dropdown-item command="userCenter">个人中心</el-dropdown-item> -->
+        <el-dropdown-item command="openPwd">修改密码</el-dropdown-item>
+        <el-dropdown-item command="loginOut">退出登录</el-dropdown-item>
+      </el-dropdown-menu>
+    </el-dropdown>
+     <div class="avatar-name">
+        你好！{{getUserInfoData.userName.length>7 ?getUserInfoData.userName.substring(0,7) :getUserInfoData.userName}}
+      </div>
+  </div>
+
 </template>
 
 <script>
@@ -24,6 +31,9 @@ export default {
     return {
       avatarSrc: Avatar
     };
+  },
+  computed: {
+    ...mapGetters(['getUserInfoData'])
   },
   methods: {
     ...mapMutations(["removeUserInfo"]),

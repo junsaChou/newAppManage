@@ -1,22 +1,36 @@
 <template>
   <div class="table-classic-wrapper">
-    <el-card v-show="IntegraListForm.flag">
+    <el-card shadow="always" >
       <!-- 查询栏 -->
       <el-form
         ref="searchForm"
         :inline="true"
-        :model="listQuery" 
-        label-width="100px"
+        :model="listQuery"
+        label-width="90px"
         class="search-form"
       >
-        <el-form-item label="登录账户">
-          <el-input   v-model="listQuery.account" placeholder="请填写" />
+        <el-form-item label="时间">
+          <el-date-picker
+            v-model="createMap"
+            type="datetimerange"
+            
+            value-format="yyyy-MM-dd HH:mm:ss"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            align="right"
+            @change="changePicker"
+          ></el-date-picker>
+        </el-form-item>
+        <el-form-item label="用户名">
+          <el-input v-model="listQuery.adminName  " placeholder="请填写" />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="onSubmit">搜索</el-button>
           <el-button type="warning" @click="onReset">重置</el-button>
         </el-form-item>
       </el-form>
+      <!-- 操作栏 -->
       <!-- 表格栏 -->
       <el-table
         ref="multipleTable"
@@ -26,88 +40,90 @@
         style="width: 100%"
         size="medium"
       >
-        <!-- <el-table-column type="selection" width="60" /> -->
         <el-table-column
           show-overflow-tooltip
-          label="用户ID"
           prop="id"
+          label="序号"
           align="center"
-          width="90"
         />
-        <el-table-column show-overflow-tooltip prop="account" label="登录账户" align="center" /> 
-        <el-table-column show-overflow-tooltip prop="integral" label="总积分" align="center" />
-        <el-table-column show-overflow-tooltip prop="integralCount" label="本月积分" align="center" />
-        <el-table-column label="操作" fixed="right" align="center" width="150">
-          <template slot-scope="scope">
-            <el-button size="mini" type="primary" @click="view(scope.$index,scope.row)">查看</el-button>
+        <el-table-column show-overflow-tooltip prop="adminName" label="用户名" align="center" />
+        <el-table-column show-overflow-tooltip prop="module" label="操作模块" align="center" />
+        <el-table-column show-overflow-tooltip  label="操作类型" prop="type" align="center" />
+        
+        <!-- <el-table-column show-overflow-tooltip  label="操作类型" align="center" >
+                     </el-table-column> -->
+        <el-table-column show-overflow-tooltip  label="操作详情" align="center" >
+         <template slot-scope="scope" v-if="scope.row.datails =='' ">{{ scope.row.type  == '1'?'消费':scope.row.payType == '2'?'充值':scope.row.payType == '3'?'退单':'活动' }}</template>
+        </el-table-column>
+        <el-table-column show-overflow-tooltip  label="操作时间" align="center" > 
+         <template slot-scope="scope">
+            <span>{{scope.row.createTime | formatDate}}</span>
           </template>
         </el-table-column>
       </el-table>
       <!-- 分页栏 -->
       <Pagination
         :total="total"
-        :page.sync="pageIndex"
-        :limit.sync="pageSize"
+        :page.sync="listQuery.pageIndex"
+        :limit.sync="listQuery.pageSize"
         @pagination="PostFetchData"
       />
+      <!-- 新增/编辑 弹出栏 -->
     </el-card>
-      <IntegraList v-if="!IntegraListForm.flag" :userId = IntegraListForm.id   @func="getMsgFormSon"></IntegraList>
   </div>
 </template>
 
 <script>
-//用户积分列表  添加虚拟账户 添加虚拟账户金额  发放奖励
+//系统日志  
 import {
-  apiGetUserIntegralList,
+  apiLogList,
 } from "../../api/apilist";
 // import excel from "../../utils/excel";
 import Pagination from "../../components/Pagination";
-import IntegraList from "../../components/Integral"; //优惠券组件
-// import Hints from '../../components/Hints'
-
 export default {
   name: "Table",
-  components: { Pagination, IntegraList},
+  components: { Pagination },
   data() {
     return {
       // 数据列表加载动画
       listLoading: true,
-      IntegraListForm: { //充值奖励列表
-        flag: true,
-        id:null,
-      },
       // 查询列表参数对象
       listQuery: {
-        account: null,
+        adminName :null,//优惠券标题
+        startTime : null,//创建时间
+        endTime  : null,//结束时间
+        pageIndex: 1, //页码 ,
+        pageSize: 10 //每页数据量大小 ,
       },
+      createMap:null,//创建日期map
+      // 新增/编辑提交表单对象
       // 数据总条数
       total: 0,
       // 表格数据数组
-      pageIndex: 1, //页码 ,
-      pageSize: 10, //每页数据量大小 ,
+
       tableData: [],
+    
       // 新增/编辑 弹出框显示/隐藏
+
+      // 表单校验 trigger: ['blur', 'change'] 为多个事件触发
+      // 防止多次连续提交表单
+      isSubmit: false,
+      // 导入数据 弹出框显示/隐藏
+      importVisible: false
+      //是否出现审核图片
     };
   },
-  created(){
+  created() {
     this.PostFetchData();
   },
   methods: {
-    getMsgFormSon(data) {
-      this.IntegraListForm.flag = data;
-    },
     // 获取数据列表
     PostFetchData() {
       this.listLoading = true;
       // 获取审核数据列表接口
       let data = this.listQuery;
-      if(this.listQuery.account == ''){
-        this.listQuery.account = null;
-      }
-      data["pageIndex"] = this.pageIndex;
-      data["pageSize"] = this.pageSize;
       // delete data.dateTime;
-      apiGetUserIntegralList(data)
+      apiLogList(data)
         .then(res => {
           console.log(res);
           if (res.code === 200) {
@@ -121,10 +137,20 @@ export default {
           this.listLoading = false;
         });
     },
+    changePicker(val) {
+      //时间选择
+      if (val) {
+        this.listQuery.startTime = val[0];
+        this.listQuery.endTime = val[1];
+      } else {
+        this.listQuery.startTime = null;
+        this.listQuery.endTime = null;
+      }
+      console.log(val);
+    },
     // 查询数据
     onSubmit() {
-      // this.listQuery.currentPage = 1;
-
+      this.listQuery.pageIndex = 1;
       this.PostFetchData();
     },
     //重置数据
@@ -133,21 +159,17 @@ export default {
       Object.keys(that.listQuery).forEach(key => {
         that.listQuery[key] = null;
       });
+      this.createMap = null;
+      this.listQuery.pageIndex = 1;
+      this.listQuery.pageSize = 10;
       this.PostFetchData();
       // this.$refs["searchForm"].resetFields(); //清空表单
-    },
-    //查看
-    view(index, row) {
-      console.log(row);
-      this.IntegraListForm.flag = false;
-      this.IntegraListForm.id = row.id;
     }
   }
 };
 </script>
 
 <style lang="less">
-
 .table-classic-wrapper {
   .el-card {
     min-height: 656px;
@@ -179,14 +201,6 @@ export default {
       background-color: #f2f3f7;
     }
   }
-  // .is-disabled {
-  //  .el-input__inner{
-  //     color: #000;
-  //     font-weight: 500;
-  //     font-size: 32px;
-  //     border: none;
-  //   }
-  // }
   .dialog-form {
     .el-form-item__label {
       padding: 0;
@@ -238,37 +252,5 @@ export default {
     color: #aaa;
     text-align: center;
   }
-}
-/* switch按钮样式 */
-.switch .el-switch__label {
-  position: absolute;
-  display: none;
-  color: #fff !important;
-}
-/*打开时文字位置设置*/
-.switch .el-switch__label--right {
-  z-index: 1;
-}
-/* 调整打开时文字的显示位子 */
-.switch .el-switch__label--right span {
-  margin-right: 9px;
-}
-/*关闭时文字位置设置*/
-.switch .el-switch__label--left {
-  z-index: 1;
-}
-/* 调整关闭时文字的显示位子 */
-.switch .el-switch__label--left span {
-  margin-left: 9px;
-}
-/*显示文字*/
-.switch .el-switch__label.is-active {
-  display: block;
-}
-/* 调整按钮的宽度 */
-.switch.el-switch .el-switch__core,
-.el-switch .el-switch__label {
-  width: 70px !important;
-  margin: 0;
 }
 </style>

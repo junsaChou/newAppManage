@@ -9,16 +9,8 @@
         label-width="90px"
         class="search-form"
       >
-        <el-form-item label="广告名称">
+        <el-form-item label="活动名称">
           <el-input v-model="listQuery.title" placeholder="请填写" />
-        </el-form-item>
-        <el-form-item label="账户状态">
-          <el-select v-model="listQuery.type " placeholder="请填写">
-            <el-option value label="全部" />
-            <el-option :value="0" label="未认证" />
-            <el-option :value="1" label="认证" />
-            <el-option :value="2" label="通用" />
-          </el-select>
         </el-form-item>
         <el-form-item label="广告状态">
           <el-select v-model="listQuery.state " placeholder="请填写">
@@ -587,8 +579,7 @@ export default {
     },
     // 查询数据
     onSubmit() {
-      // this.listQuery.currentPage = 1;
-
+      this.pageIndex = 1;
       this.PostFetchData();
     },
     //重置数据

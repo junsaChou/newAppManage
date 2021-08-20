@@ -139,3 +139,25 @@ export const apiEditLinks = p => postBody('/channellinks/editLinks', p);
 export const apiDeleteLinks = p => postBody('/channellinks/deleteLinks', p);
 // POST /qd-admin/channellinks/channellinksExport 渠道链接导出
 export const apiChannellinksExport = p => postBlob('/channellinks/channellinksExport', p);
+
+
+// 邀请管理列表 POST /qd-admin/invitation/getInvitationList
+export const apiGetInvitationList = p => postBody('/invitation/getInvitationList', p);
+// POST /qd-admin/invitation/invitationListExport 邀请管理列表导出
+export const apiInvitationListExport = p => postBlob('/invitation/invitationListExport', p);
+
+// POST /qd-admin/bill/getBillCount 账单图表
+export const apiGetBillCount = p => postBody('/bill/getBillCount', p);
+
+// /qd-admin/log/logList 日志列表
+export const apiLogList = p => postBody('/log/logList', p);
+
+// POST /qd-admin/userStatistical/list 经理数据总揽统计列表
+export const apiUserStatisticalList = p => postBody('/userStatistical/list', p);
+// POST /qd-admin/userStatistical/userStatisticalExport 经理数据总揽统计列表导出
+export const apiUserStatisticalExport = p => postBlob('/userStatistical/userStatisticalExport', p);
+
+// POST /qd-admin/userConvert/list  经理新增转换列表
+export const apiUserConvertList = p => postBody('/userConvert/list', p);
+// POST /qd-admin/userConvert/userConvertExport 经理新增转换列表导出
+export const apiUserConvertExport = p => postBlob('/userConvert/userConvertExport', p);

@@ -37,7 +37,18 @@ export default {
     padding: 16px 20px;
     .header-right {
       float: right;
-      width: 200px;
+      min-width: 220px;
+      max-width: 300px;
+    }
+    .avatar-wrap{
+      overflow: hidden;
+    }
+    .avatar-name{
+      float: right;
+      padding-left: 10px;
+      min-width: 80px;
+      max-width: 220px;
+      line-height: 40px;
     }
   }
 </style>

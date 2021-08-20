@@ -32,13 +32,22 @@ export default {
   beforeDestroy() {
     window.removeEventListener('resize', this.resize)
   },
+  watch: {//监听异步数据
+      data: { // content为父组件传递过来的对象
+            deep: true,
+            handler: function(newval,oldval){
+                this.drawing()
+            }
+      }
+  },
   methods: {
     resize() {
       this.dom.resize()
     },
+   
     drawing() {
       const legendData = this.data.map(item => item.name)
-      const radius = this.type === 'pie' ? '70%' : ['50%', '70%']
+      const radius = this.type === 'pie' ? '50%' : ['35%', '50%']
       const options = {
         // 标题
         title: {
@@ -61,8 +70,8 @@ export default {
           orient: 'vertical',
           left: 10,
           top: 20,
-          itemWidth: 25,
-          itemHeight: 15,
+          itemWidth: 15,
+          itemHeight: 5,
           itemGap: 5,
           data: legendData,
           textStyle: {
@@ -91,7 +100,7 @@ export default {
             // 类型配置
             type: 'pie',
             radius: radius,
-            center: ['52%', '55%'],
+            center: ['50%', '50%'],
             // 数据配置
             data: this.data
           }

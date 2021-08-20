@@ -8,9 +8,15 @@ import './assets/icon-fonts/iconfont.css'
 import './assets/icon-fonts/iconfont'
 import 'element-ui/lib/theme-chalk/index.css'
 import ElementUI from 'element-ui'
+import { upDate } from './assets/js/validate'
+// import { pickerOptionsApi  } from './utils/config'
+
 Vue.use(ElementUI, { size: 'small' })
     // Vue.config.devtools = false;
 Vue.prototype.$axios = axios
+Vue.prototype.upDateTime = upDate
+
+// Vue.prototype.pickerOptionsApi = pickerOptionsApi
 Vue.config.devtools = true;
 Vue.config.productionTip = false
 

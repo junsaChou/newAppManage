@@ -2,47 +2,10 @@
   <div class="table-classic-wrapper">
     <el-card shadow="always">
       <!-- 查询栏 -->
-      <el-form
-        ref="searchForm"
-        :inline="true"
-        :model="listQuery"
-        label-width="90px"
-        class="search-form"
-      >
-        <el-form-item label="标题">
-          <el-input v-model="listQuery.title" placeholder="请填写" />
-        </el-form-item>
-        <el-form-item label="发布人">
-          <el-input v-model="listQuery.adminName" placeholder="请填写" />
-        </el-form-item>
-        <el-form-item label="发布时间">
-          <el-date-picker
-            v-model="dateTime"
-            type="datetimerange"
-            @change="upDate"
-            :picker-options="pickerOptions"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            align="right"
-          ></el-date-picker>
-        </el-form-item>
-        <el-form-item label="消息类型">
-          <el-select v-model="listQuery.newType  ">
-            <el-option value label="全部" />
-            <el-option :value="0" label="私聊消息" />
-            <el-option :value="1" label="系统消息 " />
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="onSubmit">搜索</el-button>
-          <el-button type="warning" @click="onReset">重置</el-button>
-        </el-form-item>
-      </el-form>
+      <mixSearch  v-model="listQuery"  :fields="searchFields" ref="form"  @reset="onReset"/>
       <!-- 操作栏 -->
       <div class="control-btns">
-        <el-button type="primary" @click="handleCreate">发布消息</el-button>
+        <el-button type="primary" @click="handleCreate">发放奖励</el-button>
       </div>
       <!-- 表格栏 -->
       <el-table
@@ -53,73 +16,82 @@
         style="width: 100%"
         size="medium"
       >
-        <!-- <el-table-column type="selection" width="60" /> -->
-        <el-table-column
-          show-overflow-tooltip
-          prop="newUuid"
-          label="ID"
-          align="center"
-          width="90"
-          sortable
-        />
-        <el-table-column show-overflow-tooltip prop="title" label="消息标题" align="center" />
-        <el-table-column show-overflow-tooltip prop="message" label="消息内容" align="center" />
-        <el-table-column show-overflow-tooltip prop="linkUrl" label="详情链接" align="center" />
-        <el-table-column show-overflow-tooltip prop="newType" label="消息类型" align="center">
+        <el-table-column show-overflow-tooltip  label="奖励类型" align="center" >
           <template slot-scope="scope">
-            <span>{{scope.row.newType == 0 ? '私聊消息' : '系统消息' }}</span>
+            <span>{{scope.row.rewardType  == 1 ? '积分' : '金币' }}</span>
           </template>
         </el-table-column>
-        <el-table-column show-overflow-tooltip label="发布时间" align="center" width="150">
+        <el-table-column show-overflow-tooltip prop="title" label="站内信标题" align="center" />
+        <el-table-column show-overflow-tooltip prop="message" label="站内信内容" align="center" >
+          <template slot-scope="scope">
+              <el-input
+                type="textarea"
+                v-model="scope.row.message "
+                disabled
+                show-word-limit
+              ></el-input>
+          </template>
+        </el-table-column>
+        <el-table-column show-overflow-tooltip  label="发放用户" align="center">
+            <template slot-scope="scope">{{ scope.row.userType == '0'?'全部用户':'部分用户' }}</template>
+        </el-table-column>
+        <el-table-column show-overflow-tooltip label="发放时间" align="center" width="150">
           <template slot-scope="scope">
             <span>{{scope.row.createDate | formatDate}}</span>
           </template>
         </el-table-column>
-        <el-table-column show-overflow-tooltip label="发布用户" align="center">
-          <template slot-scope="scope">{{ scope.row.userType == '0'?'全部用户':'部分用户' }}</template>
+        <el-table-column show-overflow-tooltip prop="issueAmount" label="发放金额" align="center" />
+        <el-table-column show-overflow-tooltip  label="发放方式" align="center" >
+         <template slot-scope="scope">
+            <span>{{scope.row.issueType == 1 ? '扣除' : '奖励' }}</span>
+          </template>
         </el-table-column>
-        <el-table-column
-          show-overflow-tooltip
-          label="发布人"
-          align="center"
-          width="90"
-          prop="adminName"
-        />
-        <!-- <el-table-column prop="hobby" label="爱好" align="center" width="300" show-overflow-tooltip /> -->
+        <el-table-column show-overflow-tooltip prop="adminName" label="发放人" align="center" />
+        <el-table-column show-overflow-tooltip prop="remark" label="发放说明" align="center" />
       </el-table>
       <!-- 分页栏 -->
       <Pagination
         :total="total"
-        :page.sync="listQuery.pageIndex"
-        :limit.sync="listQuery.pageSize"
+        :page.sync="page.pageIndex"
+        :limit.sync="page.pageSize"
         @pagination="PostFetchData"
       />
       <!-- 新增/编辑 弹出栏 -->
       <el-dialog
         :title="formVisibleList.title"
         :visible.sync="formVisibleList.formVisible"
+        v-if="formVisibleList.formVisible"
         width="45%"
         class="dialog-form"
         :before-close="handleClose"
       >
         <el-form ref="dialogForm" :model="dialogForm" :rules="formRules" label-width="110px">
-          <el-form-item label="标题：" prop="title">
+          <el-form-item label="发放方式：" prop="issueType">
+            <el-radio-group v-model="dialogForm.issueType ">
+              <el-radio :label="2">奖励</el-radio>
+              <el-radio :label="1">扣除</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="奖励类型：" prop="rewardType">
+            <el-radio-group v-model="dialogForm.rewardType ">
+              <el-radio :label="1">积分</el-radio>
+              <el-radio :label="2">金币</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="发放金额：" prop="issueAmount">
+            <el-input v-model="dialogForm.issueAmount" />
+          </el-form-item>
+          <el-form-item label="站内信标题：" prop="title">
             <el-input v-model="dialogForm.title" />
           </el-form-item>
-          <el-form-item label="内容：" prop="message">
+          <el-form-item label="站内信内容：" prop="message">
             <el-input
               type="textarea"
               placeholder="请输入内容"
               v-model="dialogForm.message "
-              maxlength="40"
+              maxlength="200"
               show-word-limit
             ></el-input>
-          </el-form-item>
-          <el-form-item label="详情链接：" prop="linkUrl">
-            <el-input v-model="dialogForm.linkUrl" />
-          </el-form-item>
-          <el-form-item label="发布时间：" prop="giveOutTime" >
-            <el-date-picker v-model="dialogForm.giveOutTime"  value-format="yyyy-MM-dd HH:mm:ss" type="datetime" :picker-options =" pickerOptionsDialog"  placeholder="选择日期时间"></el-date-picker>
           </el-form-item>
           <el-form-item label="消息类型：" prop="newType">
             <el-radio-group v-model="dialogForm.newType ">
@@ -127,7 +99,7 @@
               <el-radio :label="1">系统消息</el-radio>
             </el-radio-group>
           </el-form-item>
-          <el-form-item label="发布用户：" prop="userType">
+          <el-form-item label="发放用户：" prop="userType">
             <el-radio-group v-model="dialogForm.userType ">
               <el-radio :label="0">全部用户</el-radio>
               <el-radio :label="1">部分用户</el-radio>
@@ -144,6 +116,9 @@
               placeholder="请输入内容"
               v-model="dialogForm.userPhoneList"
             ></el-input>
+          </el-form-item>
+          <el-form-item label="发放说明：" prop="remark">
+            <el-input v-model="dialogForm.remark" />
           </el-form-item>
           <div class="footer-item">
             <el-button @click="cancleForm">取 消</el-button>
@@ -164,95 +139,87 @@
 //消息列表 2,编辑发布 消息  
 import {
   apiGetNewsList,
-  apiBackSendNews,
-  apiDeletBanner,
+  apiBackSendNews
 } from "../../api/apilist";
-// import excel from "../../utils/excel";
-import validatorForm from "../../assets/js/validatorForm";
 import Pagination from "../../components/Pagination";
-import { validatAlphabetsNum } from "@/assets/js/validate";
 import { isMobile } from "@/assets/js/validate";
-// import Hints from '../../components/Hints'
+import validatorForm from "../../assets/js/validatorForm";
+import mixSearch from "../../components/mixSearch";
 
 export default {
   name: "Table",
-  components: { Pagination },
+  components: { Pagination,mixSearch },
   data() {
     return {
       //快捷选择时间
-      //快捷选择时间
-      pickerOptions: {
-        shortcuts: [
-          {
-            text: "最近一周",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit("pick", [start, end]);
-            }
-          },
-          {
-            text: "最近一个月",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              picker.$emit("pick", [start, end]);
-            }
-          },
-          {
-            text: "最近三个月",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-              picker.$emit("pick", [start, end]);
-            }
-          }
-        ]
-      },
-        //快捷选择时间
-      pickerOptionsDialog: {
-        disabledDate(time) {
-          return time.getTime() < Date.now() - 8.64e7; //如果没有后面的-8.64e7就是不可以选择今天的
-        }
-      },
+    
       // 数据列表加载动画
       listLoading: true,
       // 查询列表参数对象
       listQuery: {
-        title: null, //标题
-        adminName: null, //发布人姓名
-        newType: null, // 消息类型
-        startTime: null, //开始时间
-        endTime: null, //结束时间
-        pageIndex: 1, //页码 ,
-        pageSize: 10 //每页数据量大小 ,
+        // rewardType :null,//奖励类型
+        // userType: null, //发放类型
+        // adminName: null, //发放人
+        // startTime: null, //开始时间
+        // endTime: null, //结束时间
+        // pageIndex: 1, //页码 ,
+        // pageSize: 10 //每页数据量大小 ,
       },
+      searchFields: [
+        { span: 2, prop: 'rewardType', name: '奖励类型', placeholder: '请选择', type: 'select',
+           options: [
+                    { label: '全部', value: null },
+                    { label: '积分', value: 1 },
+                    { label: '金币', value: 2 }
+                    ]
+        },
+        { span: 2, prop: 'userType',name:'发放用户', placeholder: '请选择',  type: 'select',
+          options: [
+                    { label: '全部', value: null },
+                    { label: '全体用户', value: 0 },
+                    { label: '部分用户', value: 1 },
+                    ]
+        },
+        { span: 6, type: 'pickerOptionsPicker', name:'发放时间', placeholder: '发放时间', prop: 'dateTime'},
+        { span: 2, prop: 'adminName', name: '发放人', placeholder: '请填写' },
+        {
+          span: 2,
+          type: 'reset',
+          style:'primary',
+          class:'resetName',
+          label: '重置',
+          options: [
+            { label: '搜索', type: 'warning', click: this.onSubmit },
+            // { label: '重置', type: 'warning', click: this.onReset },
+          ],
+        },
+      ],
       dateTime: null, //搜索表格绑定时间
       // 新增/编辑提交表单对象
       dialogForm: {
-        title: null, //标题
+        issueType:null, //发放方式
+        title: null, //站内信标题
+        rewardType :null,//奖励类型
         message :null, //内容
-        linkUrl: null,//链接
-        giveOutTime: null,//发布时间
-        newType : null,//消息类型
-        userType: null,//发布用户
+        remark: null,//发放说明
+        issueAmount:null,//发放金额
+        userType: null,//发放用户
         userPhoneList: null,//用户手机号的list
-        id: null,
+        newType:null,//消息类型
+        // id: null,
         idPhoneArr:null//根据这个判断当前的是全部还是部分
-        // type: "" // 用户账户状态0未认证 1认证 2通用
       },
       // 数据总条数
       total: 0,
       // 表格数据数组
-
+      page:{
+        pageIndex: 1, //页码 ,
+        pageSize: 10, //每页数据量大小 ,
+      },
       tableData: [],
       // 多选数据暂存数组
       multipleSelection: [],
       // 新增/编辑 弹出框显示/隐藏
-      formVisible: false,
       formVisibleList: {
         formVisible: false,
         title: "编辑",
@@ -261,27 +228,28 @@ export default {
       // 表单校验 trigger: ['blur', 'change'] 为多个事件触发
       formRules: {
         title: [
-          { required: true, message: "请输入标题内容", trigger: "blur" },
-          // {
-          //   validator: validatorForm.validateCouponTitle,
-          //   trigger: "blur"
-          // }
+          { required: true, message: "请输入站内信标题", trigger: "blur" },
         ],
-         message: [
+        message: [
           { required: true, message: "请输入内容", trigger: "blur" },
-          // {
-          //   validator: validatorForm.validateCn,
-          //   trigger: "blur"
-          // }
         ],
-        // linkUrl: [
-        //   { required: true, message: "请输入详情链接", trigger: "blur" },
-        // ],
-        giveOutTime: [
-          { required: true, message: "请选择发布时间", trigger: "blur" },
+        rewardType: [{ required: true, message: "请选择奖励类型", trigger: "blur" },
         ],
-        newType: [
+        issueType: [
+          { required: true, message: "请选择发放方式", trigger: "blur" },
+        ],
+        remark:[
+          { required: true, message: "请输入发放说明", trigger: "blur" },
+        ],
+        newType:[
           { required: true, message: "请选择消息类型", trigger: "blur" },
+        ],
+        issueAmount:[
+          { required: true, message: "请输入发放金额", trigger: "blur" },
+           {
+            validator: validatorForm.validateNumberMaxReg,
+            trigger: "blur"
+          }
         ],
         userType: [
           { required: true, message: "请选择发布用户类型", trigger: "blur" },
@@ -303,7 +271,6 @@ export default {
   methods: {
     //发布消息和编辑消息
     InitapiBackSendNews(data) {
-      console.log(data);
       apiBackSendNews(data)
         .then(res => {
           console.log(res);
@@ -333,14 +300,16 @@ export default {
     handleCreate() {
       //创建消息
       this.formVisibleList.formVisible = true;
-      this.formVisibleList.title = "发布新消息";
+      this.formVisibleList.title = "发放奖励";
       this.formVisibleList.isCreate = true;
     },
     // 获取数据列表
     PostFetchData() {
       this.listLoading = true;
-      // 获取审核数据列表接口
-      let data = this.listQuery;
+      let { pageIndex,pageSize } = this.page;
+      let searchData = Object.assign({}, this.listQuery);
+      this.upDateTime(searchData.dateTime,'startTime', 'endTime','dateTime',searchData);
+      let data = { ...searchData,pageIndex,pageSize,type:2}
       // delete data.dateTime;
       apiGetNewsList(data)
         .then(res => {
@@ -357,9 +326,8 @@ export default {
         });
     },
     // 查询数据
-    onSubmit() {
-      // this.listQuery.currentPage = 1;
-
+    onSubmit() {;
+      this.page.pageIndex = 1;
       this.PostFetchData();
     },
     //重置数据
@@ -368,10 +336,11 @@ export default {
       Object.keys(that.listQuery).forEach(key => {
         that.listQuery[key] = null;
       });
-      this.listQuery.pageIndex = 1;
-      this.listQuery.pageSize = 10;
-      this.dateTime = null;
-      this.PostFetchData();
+      this.onSubmit();
+      // this.listQuery.pageIndex = 1;
+      // this.listQuery.pageSize = 10;
+      // this.dateTime = null;
+      // this.PostFetchData();
       // this.$refs["searchForm"].resetFields(); //清空表单
     },
     // 新增/编辑表单确认提交
@@ -379,6 +348,9 @@ export default {
       this.$refs[formName].validate(valid => {
         if (valid) {
          let data = {};
+      
+        let { issueType,title,rewardType,message,remark,userType,issueAmount,newType } = this.dialogForm;
+        data = {issueType,title,rewardType,message,remark,userType,issueAmount,newType };
           if (this.dialogForm.userType > 0) {
             //部分用户
             let userPhoneList = this.dialogForm.userPhoneList.split(`\n`);
@@ -403,16 +375,10 @@ export default {
             this.dialogForm.userPhoneList = null;
             this.dialogForm.idPhoneArr = null;
           }
-          data["title"] = this.dialogForm.title //标题
-          data["message"] = this.dialogForm.message  //内容
-          data["linkUrl"] = this.dialogForm.linkUrl //链接
-          data["giveOutTime"] = this.dialogForm.giveOutTime //发布时间
-          data["newType"] = this.dialogForm.newType; //消息类型
-          data["userType"] = this.dialogForm.userType//发布用户
-          data["giveOutTime"] = this.dialogForm.giveOutTime;
-         
+          data['type'] = 2;
           if (isCreate) {
             console.log(data);
+            // return false;
             this.InitapiBackSendNews(data);
           }
         } else {
@@ -423,9 +389,11 @@ export default {
     },
     // 新增/编辑表单取消提交
     cancleForm() {
+      this.$refs.dialogForm.resetFields()
       Object.keys(this.dialogForm).forEach(key => {
         this.dialogForm[key] = null;
       });
+     
       // this.dialogForm.validType = "0"; //判断是否为日期范围 和 固定天数
       // this.dialogForm.type = 0;
       this.formVisibleList.formVisible = false;
@@ -480,7 +448,7 @@ export default {
     .el-form-item__label {
       padding: 0;
     }
-    .el-input {
+    .el-input,.el-textarea {
       max-width: 380px;
     }
     .footer-item {

@@ -17,9 +17,9 @@
         label-width="90px"
         class="search-form"
       >
-        <el-form-item prop="orderNo" label="订单号">
+        <!-- <el-form-item prop="orderNo" label="订单号">
           <el-input clearable v-model="orderListForm.orderNo " />
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item prop="customerName" label="姓名">
           <el-input clearable v-model="orderListForm.customerName" />
         </el-form-item>
@@ -184,7 +184,7 @@
       <!-- 新增/编辑 弹出栏 -->
     </el-card>
     <div class="body" shadow="always" v-else>
-      <el-page-header @back="()=>this.showDetail=!this.showDetail" content="订单详情"></el-page-header>
+      <el-page-header @back="showDetail =!showDetail" content="订单详情"></el-page-header>
       <div class="app-content">
         <div class="details">
           <div class="left">
@@ -388,12 +388,11 @@
 import { apiGetOrderList } from "../../api/apilist"; //订单列表 数据
 // import excel from "../../utils/excel";
 import Pagination from "../../components/Pagination";
-import Upload from "../../components/Upload";
 // import Hints from '../../components/Hints'
 
 export default {
   name: "Table",
-  components: { Pagination, Upload },
+  components: { Pagination },
   data() {
     return {
       //快捷选择时间
@@ -531,7 +530,7 @@ export default {
     },
     // 查询数据
     onSubmit() {
-      // this.orderListForm.pageIndex = 1;
+      this.pageIndex = 1;
       this.PostFetchData();
     },
     //重置数据

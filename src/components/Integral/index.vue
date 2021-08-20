@@ -219,6 +219,7 @@ export default {
     },
     // 查询数据
     onSubmit() {
+      this.couponForm.pageIndex = 1;
       this.PostFetchData();
     },
     //重置数据

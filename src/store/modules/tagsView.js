@@ -7,7 +7,10 @@ const state = {
 }
 
 const getters = {
-    visitedViews: (state, getters) => state.visitedViews
+    visitedViews: (state, getters) => state.visitedViews,
+    getUserInfoData() {
+        return  JSON.parse(Cookies.get('userInfoData'));
+    }
 }
 
 const mutations = {
@@ -56,10 +59,6 @@ const mutations = {
     },
     getUserInfo() {
         return Cookies.get('userInfoList')
-            // Cookies.remove('token', token)
-    },
-    getUserInfoData() {
-        return Cookies.get('userInfoData')
             // Cookies.remove('token', token)
     },
     removeUserInfoData(state, userInfoData) {

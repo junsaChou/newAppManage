@@ -10,7 +10,7 @@
         class="search-form"
       >
         <el-form-item label="链接">
-          <el-input v-model="listQuery.linkName" placeholder="请填写" />
+          <el-input v-model="listQuery.oldLink" placeholder="请填写" />
         </el-form-item>
         <el-form-item label="时间">
           <el-date-picker
@@ -39,9 +39,9 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="success" @click="exportList">导出</el-button>
           <el-button type="primary" @click="onSubmit">搜索</el-button>
           <el-button type="warning" @click="onReset">重置</el-button>
+           <el-button type="success" @click="exportList">导出</el-button>
         </el-form-item>
       </el-form>
       <!-- 操作栏 -->
@@ -65,7 +65,11 @@
         />
         <el-table-column show-overflow-tooltip prop="oldLink" label="原始链接地址" align="center" />
         <el-table-column show-overflow-tooltip prop="shortLink" label="短链接地址" align="center" />
-        <!-- <el-table-column show-overflow-tooltip prop="clickNum " label="点击次数" align="center" /> -->
+        <el-table-column show-overflow-tooltip  label="渠道发布链接" align="center" >
+         <template slot-scope="scope">
+            <span>{{scope.row.oldLink}}{{scope.row.shortLink }}</span>
+          </template>
+        </el-table-column>
         <el-table-column show-overflow-tooltip  label="最后更新时间" align="center" > 
          <template slot-scope="scope">
             <span>{{scope.row.updateTime  | formatDate}}</span>
@@ -165,7 +169,6 @@ import {
   apiLinksList,apiInsertLinks,
   apiEditLinks,apiDeleteLinks,apiChannellinksExport
 } from "../../api/apilist";
-import axios from "axios";
 // import excel from "../../utils/excel";
 import validatorForm from "../../assets/js/validatorForm";
 import { excelList } from "../../assets/js/validate"
@@ -178,35 +181,28 @@ export default {
     return {
         //快捷选择时间
       pickerOptions: {
-        shortcuts: [
-          {
-            text: "最近一周",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit("pick", [start, end]);
+         // 设置不能选择的日期
+        onPick: ({ maxDate, minDate }) => {
+            this.choiceDate0 = minDate.getTime();
+            if (maxDate) {
+                this.choiceDate0 = '';
             }
-          },
-          {
-            text: "最近一个月",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              picker.$emit("pick", [start, end]);
+        },
+        disabledDate:
+            (time) => {
+                let choiceDateTime = new Date(this.choiceDate0).getTime();
+                const minTime = new Date(choiceDateTime).setMonth(new Date(choiceDateTime).getMonth() - 1);
+                const maxTime = new Date(choiceDateTime).setMonth(new Date(choiceDateTime).getMonth() + 1);
+                const min = minTime;
+                const newDate = new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1;
+                const max = newDate < maxTime ? newDate : maxTime;
+            //如果已经选中一个日期 则 返回 该日期前后一个月时间可选
+                if (this.choiceDate0) {
+                    return time.getTime() < min || time.getTime() > max;
+                }
+            //若一个日期也没选中 则 返回 当前日期以前日期可选
+                return time.getTime() > newDate;
             }
-          },
-          {
-            text: "最近三个月",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-              picker.$emit("pick", [start, end]);
-            }
-          }
-        ]
       },
       // 数据列表加载动画
       listLoading: true,
@@ -214,6 +210,7 @@ export default {
       listQuery: {
         clearingForm  :null,//结算方式 UV 记录类型 1 充值 2消费 ,
         linkName :null,//链接名称
+        oldLink: null, //原始链接名称：
         adminName :null,//跟进人
         startTime : null,//创建时间
         endTime  : null,//结束时间
@@ -427,7 +424,9 @@ export default {
     },
     //渠道导出
     exportList(){
-      let data = this.listQuery;
+      let data = Object.assign({}, this.listQuery)
+      delete data.pageSize;
+      delete data.pageIndex;
       apiChannellinksExport(data) 
        .then(res => {
           console.log(res);
@@ -477,8 +476,7 @@ export default {
     },
     // 查询数据
     onSubmit() {
-      // this.listQuery.currentPage = 1;
-
+      this.listQuery.pageIndex = 1;
       this.PostFetchData();
     },
     //重置数据

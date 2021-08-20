@@ -123,7 +123,6 @@ import {
 // import excel from "../../utils/excel";
 import validatorForm from "../../assets/js/validatorForm";
 import Pagination from "../../components/Pagination";
-import { validatAlphabetsNum } from "@/assets/js/validate";
 import RewardList from "../../components/RewardList"; //优惠券组件
 // import Hints from '../../components/Hints'
 
@@ -279,7 +278,7 @@ export default {
     // 查询数据
     onSubmit() {
       // this.listQuery.currentPage = 1;
-
+      this.pageIndex = 1;
       this.PostFetchData();
     },
     //重置数据

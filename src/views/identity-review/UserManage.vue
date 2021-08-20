@@ -1,22 +1,9 @@
 <template>
   <div class="table-classic-wrapper">
-    <!-- <Hints>
-      <template slot="hintName">Table表格组件</template>
-      <template slot="hintInfo">
-        <p>element-Table：使用elementUI的Table组件，可用于展示多条结构类似的数据，并对其进行相关操作</p>
-        <p>地址：访问 <el-link type="success" href="https://element.eleme.cn/2.13/TableClassic.vue#/zh-CN/component/table" target="_blank">element-Table</el-link></p>
-      </template>
-    </Hints>-->
     <el-card v-if="showDetail" shadow="always">
-      <!-- 操作栏 -->
-      <!-- <div class="control-btns">
-        <el-button type="primary" @click="handleCreate">新建数据</el-button>
-        <el-button type="primary" @click="handleImport">导入数据</el-button>
-        <el-button type="primary" @click="exportVisible = true">导出数据</el-button>
-        <el-button type="danger" @click="batchDelete">批量删除</el-button>
-      </div>-->
       <!-- 查询栏 -->
-      <el-form
+      <mixSearch  v-model="listQuery"  :fields="searchFields" ref="form"  @reset="onReset"/>
+      <!-- <el-form
         ref="searchForm"
         :inline="true"
         :model="listQuery"
@@ -33,7 +20,6 @@
             <el-option :value="1" label="认证中" />
             <el-option :value="2" label="认证失败" />
             <el-option :value="3" label="认证成功" />
-            <!-- <el-option :value="4" label="冻结" /> -->
           </el-select>
         </el-form-item>
         <el-form-item label="公司名称">
@@ -79,7 +65,7 @@
           <el-button type="primary" @click="onSearch">搜索</el-button>
           <el-button type="warning" @click="onReset">重置</el-button>
         </el-form-item>
-      </el-form>
+      </el-form> -->
 
       <!-- 表格栏 -->
       <el-table
@@ -136,8 +122,8 @@
       <!-- 分页栏 -->
       <Pagination
         :total="total"
-        :page.sync="pageIndex"
-        :limit.sync="pageSize"
+        :page.sync="page.pageIndex"
+        :limit.sync="page.pageSize"
         @pagination="PostFetchData"
       />
       <!-- 新增/编辑 弹出栏 -->
@@ -321,10 +307,8 @@
 </template>
 
 <script>
-import { getTableList } from "../../api";
 //2,审核列表  3，审核详情 4,编辑审核详情 5 获取cors的密钥
 import {
-  apiGetUserAuditList,
   apiGetAuthList,
   apiGetAuthInfo,
   apiEditAuth,
@@ -332,62 +316,66 @@ import {
 } from "../../api/apilist";
 // import excel from "../../utils/excel";
 import Pagination from "../../components/Pagination";
-import Upload from "../../components/Upload";
-// import Hints from '../../components/Hints'
+import mixSearch from "../../components/mixSearch";
 
 export default {
   name: "Table",
-  components: { Pagination, Upload },
+  components: { Pagination,mixSearch },
   data() {
     return {
-      //快捷选择时间
-      pickerOptions: {
-        shortcuts: [
-          {
-            text: "最近一周",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit("pick", [start, end]);
-            }
-          },
-          {
-            text: "最近一个月",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              picker.$emit("pick", [start, end]);
-            }
-          },
-          {
-            text: "最近三个月",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-              picker.$emit("pick", [start, end]);
-            }
-          }
-        ]
-      },
+   
       // 数据列表加载动画
       listLoading: true,
       // 查询列表参数对象
       listQuery: {
-        authState: 1, // [0:未认证],[1:认证中],[2:认证失败],[3,认证成功]，[4,冻结] ,
-        channelSource: null, // 渠道来源 ,
-        companyName: null, // 公司名称 ,
-        endTime: null, //结束时间
-        faceRecognition: null, // 人脸识别0未识别 1识别
-        phone: null, // 手机号 ,
-        startTime: null, //开始时间
-        updateEndTime: null, // 跟新结束时间 ,
-        updateStartTime: null // 跟新开始时间
+        // authState: 1, // [0:未认证],[1:认证中],[2:认证失败],[3,认证成功]，[4,冻结] ,
+        // channelSource: null, // 渠道来源 ,
+        // companyName: null, // 公司名称 ,
+        // endTime: null, //结束时间
+        // faceRecognition: null, // 人脸识别0未识别 1识别
+        // phone: null, // 手机号 ,
+        // startTime: null, //开始时间
+        // updateEndTime: null, // 跟新结束时间 ,
+        // updateStartTime: null // 跟新开始时间
       },
-      pageIndex: 1, // 页码 ,
-      pageSize: 10, // 每页数据量大小 ,
+      searchFields: [
+        { span: 2, prop: 'phone', name: '手机', placeholder: '请输入' },
+        { span: 2, prop: 'authState', name: '审核状态', placeholder: '请选择', type: 'select',
+           options: [
+                    { label: '全部', value: null},
+                    { label: '未认证', value: 0 },
+                    { label: '认证中', value: 1 },
+                    { label: '认证失败', value: 2 },
+                    { label: '认证成功', value: 3 }
+                    ]
+        },
+        {span: 2, prop: 'companyName', name:'公司名称', placeholder: '请输入'},
+        {span: 2, prop: 'areaName', name:'认证城市', placeholder: '请输入' },
+        {span: 6, type: 'pickerOptionsPicker', name:'申请时间', placeholder: '申请时间',prop:'createMap'},
+        { span: 2, prop: 'faceRecognition', name: '认证状态', placeholder: '请选择', type: 'select',
+           options: [
+                    { label: '全部', value: null},
+                    { label: '未识别', value: 0 },
+                    { label: '已识别', value: 1 }
+                    ]
+        },
+        {span: 2, prop: 'channelSource', name: '渠道', placeholder: '请输入' },
+        {span: 6, type: 'pickerOptionsPicker', name:'更新时间', placeholder: '更新时间',prop:'updateMAp'},
+        {
+          span: 2,
+          type: 'reset',
+          style:'warning',
+          class:'resetName',
+          label: '重置',
+          options: [
+            { label: '搜索', type: 'primary', click: this.onSearch }
+          ],
+        },
+      ],
+      page:{
+        pageIndex: 1, //页码 ,
+        pageSize: 10, //每页数据量大小 ,
+      },
       // 数据总条数
       total: 0,
       // 表格数据数组
@@ -412,8 +400,8 @@ export default {
         Expires: null,
         imgDataCor: null
       },
-      updateMAp: null, //更新时间储存
-      createMap: null, //申请时间储存
+      // updateMAp: null, //更新时间储存
+      // createMap: null, //申请时间储存
       // 多选数据暂存数组
       multipleSelection: [],
       // 新增/编辑 弹出框显示/隐藏
@@ -470,11 +458,13 @@ export default {
     // 获取数据列表
     PostFetchData() {
       this.listLoading = true;
-      // 获取审核数据列表接口
-      // console.log(this.listQuery);
-      let data = this.listQuery;
-      data["pageIndex"] = this.pageIndex;
-      data["pageSize"] = this.pageSize;
+      let { pageIndex,pageSize } = this.page;
+      let searchData = Object.assign({}, this.listQuery);
+      this.upDateTime(searchData.createMap,'startTime', 'endTime','createMap',searchData);
+      this.upDateTime(searchData.updateMAp,'updateStartTime', 'updateEndTime','updateMAp',searchData);
+      let data = { ...searchData,pageIndex,pageSize}
+      console.log(data)
+      // return 
       apiGetAuthList(data)
         .then(res => {
           console.log(res);
@@ -492,7 +482,7 @@ export default {
     },
     // 查询数据
     onSearch() {
-      // this.listQuery.currentPage = 1;
+      this.page.pageIndex = 1;
       this.PostFetchData();
     },
     //重置数据
@@ -501,11 +491,12 @@ export default {
       Object.keys(that.listQuery).forEach(key => {
         that.listQuery[key] = null;
       });
-      this.createMap = null;
-      this.updateMAp = null;
-      this.pageIndex = 1;
-      this.pageSize = 10;
-      this.PostFetchData();
+      that.onSearch();
+      // this.createMap = null;
+      // this.updateMAp = null;
+      // this.pageIndex = 1;
+      // this.pageSize = 10;
+      // this.PostFetchData();
     },
     //点击审核按钮
     async views(row) {
@@ -660,23 +651,23 @@ export default {
           this.listLoading = false;
         });
     },
-    changePicker() {
-      //点击确定时间
-      if (this.createMap != null) {
-        this.listQuery.startTime = this.createMap[0];
-        this.listQuery.endTime = this.createMap[1];
-      } else {
-        this.listQuery.startTime = null;
-        this.listQuery.endTime = null;
-      }
-      if (this.updateMAp != null) {
-        this.listQuery.updateStartTime = this.updateMAp[0];
-        this.listQuery.updateEndTime = this.updateMAp[1];
-      } else {
-        this.listQuery.updateStartTime = null;
-        this.listQuery.updateEndTime = null;
-      }
-    },
+    // changePicker() {
+    //   //点击确定时间
+    //   if (this.createMap != null) {
+    //     this.listQuery.startTime = this.createMap[0];
+    //     this.listQuery.endTime = this.createMap[1];
+    //   } else {
+    //     this.listQuery.startTime = null;
+    //     this.listQuery.endTime = null;
+    //   }
+    //   if (this.updateMAp != null) {
+    //     this.listQuery.updateStartTime = this.updateMAp[0];
+    //     this.listQuery.updateEndTime = this.updateMAp[1];
+    //   } else {
+    //     this.listQuery.updateStartTime = null;
+    //     this.listQuery.updateEndTime = null;
+    //   }
+    // },
     onSubmit(val) {
       let data = {};
       if (val == "isSuccess") {
@@ -796,44 +787,44 @@ export default {
     overflow: hidden;
     margin: 20px auto;
   }
-  .body {
-    // display: grid;
-    // grid-template-rows: 60px auto 60px;
-    display: flex;
-    justify-content: flex-start;
-    align-items: stretch;
-    flex-direction: column;
-    overflow: hidden;
-    &.active {
-      grid-template-rows: 60px auto;
-      overflow: hidden;
-    }
-    .el-page-header {
-      padding: 5px 0;
-    }
-    .el-page-header__content {
-      line-height: 24px;
-    }
-    .el-form-item__label {
-      line-height: 32px;
-    }
-    .demo-table-expand {
-      font-size: 0;
-    }
-    .demo-table-expand label {
-      width: 100px;
-      color: #99a9bf;
-      overflow: hidden;
-    }
-    .demo-table-expand .el-form-item {
-      margin-right: 0;
-      margin-bottom: 0;
-      width: 24%;
-    }
-    .el-card {
-      min-height: 100px !important;
-    }
-  }
+  // .body {
+  //   // display: grid;
+  //   // grid-template-rows: 60px auto 60px;
+  //   display: flex;
+  //   justify-content: flex-start;
+  //   align-items: stretch;
+  //   flex-direction: column;
+  //   overflow: hidden;
+  //   &.active {
+  //     grid-template-rows: 60px auto;
+  //     overflow: hidden;
+  //   }
+  //   .el-page-header {
+  //     padding: 5px 0;
+  //   }
+  //   .el-page-header__content {
+  //     line-height: 24px;
+  //   }
+  //   .el-form-item__label {
+  //     line-height: 32px;
+  //   }
+  //   .demo-table-expand {
+  //     font-size: 0;
+  //   }
+  //   .demo-table-expand label {
+  //     width: 100px;
+  //     color: #99a9bf;
+  //     overflow: hidden;
+  //   }
+  //   .demo-table-expand .el-form-item {
+  //     margin-right: 0;
+  //     margin-bottom: 0;
+  //     width: 24%;
+  //   }
+  //   .el-card {
+  //     min-height: 100px !important;
+  //   }
+  // }
   .control-btns {
     margin-bottom: 20px;
   }
@@ -882,4 +873,5 @@ export default {
     text-align: center;
   }
 }
+@import "../../assets/less/uesr-manage";
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div class="table-classic-wrapper">
-    <el-card shadow="always" >
+    <el-card shadow="always">
       <!-- 查询栏 -->
       <el-form
         ref="searchForm"
@@ -22,22 +22,13 @@
             @change="changePicker"
           ></el-date-picker>
         </el-form-item>
-        <el-form-item label="交易账号">
-          <el-input v-model="listQuery.account " placeholder="请填写" />
-        </el-form-item>
-        <el-form-item label="交易类型">
-          <el-select v-model="listQuery.payType ">
-            <el-option value label="全部" />
-            <el-option :value="1" label="消费" />
-            <el-option :value="2" label="充值" />
-            <el-option :value="3" label="退单" />
-            <el-option :value="4" label="活动" />
-          </el-select>
+        <el-form-item label="渠道">
+          <el-input v-model="listQuery.channel" placeholder="请填写" />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="onSubmit">搜索</el-button>
           <el-button type="warning" @click="onReset">重置</el-button>
-           <el-button type="success" @click="exportList">导出</el-button>
+          <el-button type="success" @click="exportList">导出</el-button>
         </el-form-item>
       </el-form>
       <!-- 操作栏 -->
@@ -50,27 +41,24 @@
         style="width: 100%"
         size="medium"
       >
-        <el-table-column
-          show-overflow-tooltip
-          prop="account"
-          label="交易账户"
-          align="center"
-        />
-        <el-table-column show-overflow-tooltip  label="类型" align="center" >
-              <template slot-scope="scope">{{ scope.row.payType == '1'?'消费':scope.row.payType == '2'?'充值':scope.row.payType == '3'?'退单':'活动' }}</template>
-        </el-table-column>
-        <el-table-column show-overflow-tooltip prop="orderAmount" label="金额" align="center" />
-        <el-table-column show-overflow-tooltip prop="balanceBefore" label="账户余额" align="center" />
-        <el-table-column show-overflow-tooltip  label="交易时间" align="center" > 
-         <template slot-scope="scope">
-            <span>{{scope.row.createTime | formatDate}}</span>
-          </template>
-        </el-table-column>
-        <!-- <el-table-column label="操作" align="center" width="100">
+        <el-table-column show-overflow-tooltip label="日期" align="center" width="120">
           <template slot-scope="scope">
-            <el-button size="mini" type="primary" @click="views(scope.$index, scope.row)">查看详情</el-button>
+            <span>{{scope.row.date  | formatDate}}</span>
           </template>
-        </el-table-column> -->
+        </el-table-column>
+        <el-table-column show-overflow-tooltip prop="orderNum"  label="抢单数量" align="center" />
+        <el-table-column show-overflow-tooltip prop="orderUserNum" label="抢单人数" align="center" />
+        <el-table-column show-overflow-tooltip  prop="rechargeAmount"  label="充值金额" align="center" />
+        <el-table-column show-overflow-tooltip prop="perCapitaAmount" label="人均充值金额" align="center" />
+        <el-table-column show-overflow-tooltip prop="rechargeUserNum" label="充值人数" align="center" />
+        <el-table-column show-overflow-tooltip prop="rechargeNum" label="充值笔数" align="center" />
+        <el-table-column show-overflow-tooltip prop="perCapitaRechargeNum" label="人均充值笔数" align="center" />
+        <el-table-column show-overflow-tooltip prop="monetary" label="消费金额" align="center" />
+        <el-table-column show-overflow-tooltip prop="approveNum" label="审核通过" align="center" />
+        <el-table-column show-overflow-tooltip prop="failureAuditNum" label="审核失败" align="center" />
+        <el-table-column show-overflow-tooltip prop="InreviewNum" label="审核中" align="center" />
+        <el-table-column show-overflow-tooltip prop="unauditedNum" label="未审核" align="center" />
+        <el-table-column show-overflow-tooltip prop="channel" label="渠道" align="center" />
       </el-table>
       <!-- 分页栏 -->
       <Pagination
@@ -85,22 +73,23 @@
 </template>
 
 <script>
-//账单管理列表   导出
+//经理数据展示总览  导出
 import {
-  apiGetPayRecordList,
-  apiPayRecordExport
+  apiUserStatisticalList,
+  apiUserStatisticalExport
 } from "../../api/apilist";
 // import excel from "../../utils/excel";
 import Pagination from "../../components/Pagination";
 import { excelList } from "../../assets/js/validate";//导出 excel 方法
 // import Hints from '../../components/Hints'
+
 export default {
-  name: "Table",
+  name: "useTable",
   components: { Pagination },
   data() {
     return {
         //快捷选择时间
-       pickerOptions: {
+    pickerOptions: {
          // 设置不能选择的日期
         onPick: ({ maxDate, minDate }) => {
             this.choiceDate0 = minDate.getTime();
@@ -128,12 +117,11 @@ export default {
       listLoading: true,
       // 查询列表参数对象
       listQuery: {
-        payType :null,//交易类型 记录类型 1 充值 2消费 ,
-        account:null,//优惠券标题
         startTime : null,//创建时间
         endTime  : null,//结束时间
+        channel: null, //渠道
         pageIndex: 1, //页码 ,
-        pageSize: 10 //每页数据量大小 ,
+        pageSize: 10, //每页数据量大小 ,
       },
       createMap:null,//创建日期map
       // 新增/编辑提交表单对象
@@ -157,33 +145,13 @@ export default {
     this.PostFetchData();
   },
   methods: {
-    //渠道导出
-    exportList(){
-      let  {account,endTime,startTime,payType } = this.listQuery;
-      let data = { account,endTime,startTime,payType };
-      apiPayRecordExport(data) 
-       .then(res => {
-          console.log(res);
-          excelList(res,'账单列表')
-          this.timer = setTimeout(()=>{
-              this.$message.success('导出成功');
-          }, 3000)
-        })
-        .catch(error => {
-           this.$message({
-                type: "error",
-                message: '导出失败'
-            });
-          this.listLoading = false;
-        });
-    },
     // 获取数据列表
     PostFetchData() {
       this.listLoading = true;
       // 获取审核数据列表接口
       let data = this.listQuery;
       // delete data.dateTime;
-      apiGetPayRecordList(data)
+      apiUserStatisticalList(data)
         .then(res => {
           console.log(res);
           if (res.code === 200) {
@@ -197,16 +165,36 @@ export default {
           this.listLoading = false;
         });
     },
-    changePicker(val) {
+    changePicker() {
       //时间选择
-      if (val) {
-        this.listQuery.startTime = val[0];
-        this.listQuery.endTime = val[1];
+      if (this.createMap != null) {
+        this.listQuery.startTime = this.createMap[0];
+        this.listQuery.endTime = this.createMap[1];
       } else {
         this.listQuery.startTime = null;
         this.listQuery.endTime = null;
       }
-      console.log(val);
+    },
+       //渠道导出
+    exportList(){
+      let data = Object.assign({}, this.listQuery)
+      delete data.pageSize;
+      delete data.pageIndex;
+      apiUserStatisticalExport(data) 
+       .then(res => {
+          console.log(res);
+          excelList(res,'经理数据总览统计列表');
+          this.timer = setTimeout(()=>{
+              this.$message.success('导出成功');
+          }, 3000)
+        })
+        .catch(error => {
+           this.$message({
+                type: "error",
+                message: '导出失败'
+            });
+          this.listLoading = false;
+        });
     },
     // 查询数据
     onSubmit() {

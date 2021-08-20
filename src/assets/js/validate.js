@@ -201,7 +201,6 @@ export function isvalidatemobile(phone) {
     }
     list.push(result)
     list.push(msg)
-    console.log(list);
 
     return list
 }
@@ -289,3 +288,49 @@ export function excelList(res,name){
     document.body.removeChild(link);
 
 }
+export function upDate(val,start,end,box,map) {
+    //时间选择
+    if (val) {
+      map[start] = val[0];
+      map[end] = val[1];
+    } else {
+      map[start]  = null;
+      map[end] = null;
+      
+    }
+    delete  map[box];
+  }
+  export function pickerOption(){
+    let pickerOptions = {};
+    pickerOptions = {
+        shortcuts: [
+          {
+            text: "最近一周",
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+              picker.$emit("pick", [start, end]);
+            }
+          },
+          {
+            text: "最近一个月",
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+              picker.$emit("pick", [start, end]);
+            }
+          },
+          {
+            text: "最近三个月",
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+              picker.$emit("pick", [start, end]);
+            }
+          }
+        ]
+      };
+  }

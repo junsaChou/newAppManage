@@ -2,50 +2,7 @@
   <div class="table-classic-wrapper">
     <el-card shadow="always">
       <!-- 查询栏 -->
-      <el-form
-        ref="searchForm"
-        :inline="true"
-        :model="listQuery" 
-        label-width="90px"
-        class="search-form"
-        v-if=" 1>2"
-      >
-        <el-form-item label="广告名称">
-          <el-input v-model="listQuery.title" placeholder="请填写" />
-        </el-form-item>
-        <el-form-item label="账户状态">
-          <el-select v-model="listQuery.type " placeholder="请填写">
-            <el-option value label="全部" />
-            <el-option :value="0" label="未认证" />
-            <el-option :value="1" label="认证" />
-            <el-option :value="2" label="通用" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="广告状态">
-          <el-select v-model="listQuery.state " placeholder="请填写">
-            <el-option value label="全部" />
-            <el-option :value="0" label="禁用" />
-            <el-option :value="1" label="启用" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="日期范围">
-          <el-date-picker
-            v-model="dateTime"
-            type="datetimerange"
-            @change="upDate"
-            :picker-options="pickerOptions"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            align="right"
-          ></el-date-picker>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="onSubmit">搜索</el-button>
-          <el-button type="warning" @click="onReset">重置</el-button>
-        </el-form-item>
-      </el-form>
+      <!-- <mixSearch  v-model="listQuery"  :fields="searchFields" ref="form"  @reset="onReset"/> -->
       <!-- 操作栏 -->
       <div class="control-btns">
         <el-button type="primary" @click="handleCreate">添加活动</el-button>
@@ -111,8 +68,8 @@
       <!-- 分页栏 -->
       <Pagination
         :total="total"
-        :page.sync="pageIndex"
-        :limit.sync="pageSize"
+        :page.sync="page.pageIndex"
+        :limit.sync="page.pageSize"
         @pagination="PostFetchData"
       />
       <!-- 新增/编辑 弹出栏 -->
@@ -180,18 +137,6 @@
           </div>
         </el-form>
       </el-dialog>
-      <!-- <div class="upload-box">
-          <span>选择文件：</span>
-          <Upload :files-format="filesFormat">
-            <i class="vue-dsn-icon-upload" />上传文件
-          </Upload>
-      </div>-->
-      <!-- <div class="hints">TIP：请选择要导出数据的格式。</div>
-        <span slot="footer">
-          <el-button @click="cancleImport">取 消</el-button>
-          <el-button type="primary" @click="confirmImport">确 定</el-button>
-        </span>
-      </el-dialog>-->
     </el-card>
   </div>
 </template>
@@ -207,46 +152,44 @@ import {
 // import excel from "../../utils/excel";
 import validatorForm from "../../assets/js/validatorForm";
 import Pagination from "../../components/Pagination";
-import { validatAlphabetsNum } from "@/assets/js/validate";
+// import mixSearch from "../../components/mixSearch";
 // import Hints from '../../components/Hints'
 
 export default {
   name: "Table",
-  components: { Pagination },
+  components: { Pagination},
   data() {
     return {
       //快捷选择时间
-      pickerOptions: {
-        shortcuts: [
-          {
-            text: "最近一周",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit("pick", [start, end]);
-            }
-          },
-          {
-            text: "最近一个月",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              picker.$emit("pick", [start, end]);
-            }
-          },
-          {
-            text: "最近三个月",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-              picker.$emit("pick", [start, end]);
-            }
-          }
-        ]
-      },
+      // searchFields: [
+      //   { span: 2, prop: 'title', name: '广告名称', placeholder: '广告名称', prefixIcon: 'el-icon-search' },
+      //   { span: 2, prop: 'type', name: '账户状态', placeholder: '账户状态', type: 'select',
+      //      options: [
+      //               { label: '未认证', value: 0 },
+      //               { label: '认证', value: 1 },
+      //               { label: '通用', value: 2 }
+      //               ]
+      //   },
+      //   { span: 2, prop: 'state',name:'广告状态', placeholder: '请输入',  type: 'select',
+      //     options: [
+      //               { label: '启用', value: 0 },
+      //               { label: '禁用', value: 1 },
+      //               ]
+      //   },
+      //   { span: 6, type: 'pickerOptionsPicker', name:'日期范围', placeholder: '日期范围', prop: 'dateTime'},
+      //   {
+      //     span: 2,
+      //     type: 'reset',
+      //     style:'primary',
+      //     class:'resetName',
+      //     label: '重置',
+      //     options: [
+      //       { label: '搜索', type: 'warning', click: this.onSubmit },
+      //       // { label: '重置', type: 'warning', click: this.onReset },
+      //     ],
+      //   },
+      // ],
+
       // 数据列表加载动画
       listLoading: true,
       // 查询列表参数对象
@@ -278,8 +221,10 @@ export default {
       // 数据总条数
       total: 0,
       // 表格数据数组
-      pageIndex: 1, //页码 ,
-      pageSize: 10, //每页数据量大小 ,
+      page:{
+        pageIndex: 1, //页码 ,
+        pageSize: 10, //每页数据量大小 ,
+      },
       tableData: [],
       // 多选数据暂存数组
       multipleSelection: [],
@@ -483,16 +428,18 @@ export default {
     },
     // 获取数据列表
     PostFetchData() {
+   
       this.listLoading = true;
+      let { pageIndex,pageSize } = this.page;
       // 获取审核数据列表接口
-      let data = this.listQuery;
-      data["pageIndex"] = this.pageIndex;
-      data["pageSize"] = this.pageSize;
-      // delete data.dateTime;
+      // let searchData = Object.assign({}, this.listQuery);
+      // this.upDateTime(searchData.dateTime,'startTime', 'endTime','dateTime',searchData);
+      let data = { pageIndex,pageSize }
       apiActivityLists(data)
         .then(res => {
           console.log(res);
           if (res.code === 200) {
+
             this.total = res.data.total;
             this.tableData = res.data.list;
             this.listLoading = false;
@@ -503,20 +450,10 @@ export default {
           this.listLoading = false;
         });
     },
-    upDate(val) {
-      //时间选择
-      if (val) {
-        this.listQuery.startTime = val[0];
-        this.listQuery.endTime = val[1];
-      } else {
-        this.listQuery.startTime = null;
-        this.listQuery.endTime = null;
-      }
-    },
     // 查询数据
     onSubmit() {
       // this.listQuery.currentPage = 1;
-
+      this.page.pageIndex = 1;
       this.PostFetchData();
     },
     //重置数据

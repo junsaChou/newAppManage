@@ -1,11 +1,15 @@
 import axois from 'axios'
 import { Message } from 'element-ui'
 import { getToken, removeToken } from './utils/cookie'
+import { baseUrl  } from './utils/config'
+
+import router from './router'
 // import QS from 'qs'
 
 // 创建axios实例
 const service = axois.create({
-    baseURL: 'http://test.future-better.com/qd-admin',
+    baseUrl:baseUrl,
+    // baseURL: 'http://test.future-better.com/qd-admin',
     // baseURL: 'http://192.168.0.129:8703/qd-admin',
     // baseURL: 'https://www.jinniuzhanye.com/qd-admin', // api 的 base_url process.env.VUE_APP_BASE_API //http://test.future-better.com/qd-admin/  
     timeout: 120000 // 请求超时时间
@@ -35,12 +39,18 @@ service.interceptors.response.use(
         response => {
             let res = {}
             res.data = response.data
-            res.code = response.code
             res.message = response.message
             if (res.data.code == 403) {
-                removeToken()
-                this.$router.push('/login');
-                location.reload()
+				Message({
+				    type: 'error',
+				    message: '当前登录时间已超时！'
+				})
+				setTimeout(()=>{
+					removeToken()
+					router.push({path:'/login'});
+					location.reload()
+				},1000);
+                
             }
             // if (res.code === 0) {
             //     return data.data

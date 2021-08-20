@@ -99,18 +99,18 @@
                 :label="item.authCode"
                 :name="item.label"
               >{{item.label}}</el-checkbox>
-              <!-- <el-checkbox label="身份审核" name="role "></el-checkbox>
-              <el-checkbox label="用户列表" name="role "></el-checkbox>
-              <el-checkbox label="退单管理" name="role "></el-checkbox>
-              <el-checkbox label="订单列表" name="role "></el-checkbox>
-              <el-checkbox label="优惠券管理" name="role "></el-checkbox>
-              <el-checkbox label="账户管理" name="role "></el-checkbox>
-              <el-checkbox label="banner管理" name="role "></el-checkbox>
-              <el-checkbox label="消息管理" name="role "></el-checkbox>
-              <el-checkbox label="优惠券发放列表" name="role "></el-checkbox>
-              <el-checkbox label="报表统计" name="role "></el-checkbox>-->
             </el-checkbox-group>
           </el-form-item>
+          <!-- <el-form-item label="角色权限：" prop="role ">
+            <el-tree
+              :data="nameData"
+              show-checkbox
+              node-key="authCode"
+              :props="defaultProps"
+              ref="tree"
+             >
+            </el-tree>
+          </el-form-item> -->
           <el-form-item label="状态：" v-if="!formVisibleList.isCreate" prop="state">
             <el-select v-model="dialogForm.state">
               <el-option :value="0" label="停用" />
@@ -148,8 +148,7 @@ import {
 // import excel from "../../utils/excel";
 import validatorForm from "../../assets/js/validatorForm";
 import Pagination from "../../components/Pagination";
-import { validatAlphabetsNum } from "@/assets/js/validate";
-import { nameArray } from "@/assets/js/mock"
+import { nameArray , nameData} from "@/assets/js/mock"
 // import Hints from '../../components/Hints'
 
 export default {
@@ -177,6 +176,7 @@ export default {
         // type: "" // 用户账户状态0未认证 1认证 2通用
       },
       nameArray: [],
+      nameData: [],
       dateTime: null, //搜索表格绑定时间
       // 数据总条数
       total: 0,
@@ -192,6 +192,14 @@ export default {
         title: "编辑",
         isCreate: false
       },
+       defaultProps: {
+        children: "children",
+        label: "label"
+      },
+      //权限Tree选中的节点
+      moduleids: [],
+      //获取table当前选中行row对象
+      curRow: null,
       // 表单校验 trigger: ['blur', 'change'] 为多个事件触发
       formRules: {
         account: [
@@ -233,25 +241,60 @@ export default {
   created() {
     this.PostFetchData();
     this.nameArray = nameArray;
+    this.nameData = nameData;
   },
   methods: {
+    // 选择权限
+    // handleCheckChange() {
+    //   let parentArr = this.$refs.tree.getHalfCheckedKeys() //通过 key 获取 半选中
+    //   let childeArr = this.$refs.tree.getCheckedKeys() //通过 key 获取 选中的
+    //   let roleIds = childeArr.concat(parentArr) //全部选中的
+
+    //   // console.log(roleIds);
+    //     this.moduleids = roleIds ? roleIds : [] //应该有的权限id
+    //     var newArr = [] //需要展示的数据
+    //     var item = ''
+    //     this.moduleids.forEach(item => {
+    //       // console.log(item);
+    //       this.checked(item, this.nameData, newArr)
+    //       //   item  //上面的各项节点id
+    //       // this.rootData 所有的id
+    //     })
+    //     this.moduleids = newArr//需要展示的数据
+     
+    //   console.log(newArr) 
+    // },
+    checked(authCode, data, newArr) {
+      data.forEach(item => {//遍历组成树结构的数据
+        console.log(newArr);
+        if (item.authCode == authCode) {//需要显示的如果有父元素的节点
+          // 当子节点数组为数组[]时用  item.childList.length==0  childList是子节点的数组名
+          // 当子节点为空是后台传的为null时用  item.childList==null
+          if (item.children == null) {
+            newArr.push(item.authCode)//把这个数据添加
+          }
+        } else {//需要显示的没有父元素的节点但是有子节点
+          if (item.children != null) {
+            this.checked(authCode, item.children, newArr)
+          }
+        }
+        })
+    },
     // 编辑数据
     handleEdit(index, row) {
       this.formVisibleList.formVisible = true;
 
       this.formVisibleList.title = "编辑";
       this.formVisibleList.isCreate = false;
-      console.log(row);
-      // this.dialogForm.endTime = row
-      this.dialogForm.id = row.id;
-      this.dialogForm.account = row.account;
-      this.dialogForm.userName = row.userName;
-      this.dialogForm.state = row.state;
+      let { id,account,userName,state } = row;
+      // this.dialogForm =  { id,account,userName,state };
+       this.dialogForm.id = id;
+       this.dialogForm.account = account;
+       this.dialogForm.userName = userName;
+       this.dialogForm.state = state;
       if (row.role != null) {
         this.dialogForm.role = row.role.split(",");
       }
-      // this.dialogForm.password = row.password;
-      return false;
     },
     // 删除数据
     handleDelete(index, row) {
@@ -282,7 +325,6 @@ export default {
       let data = { userId: id };
       apiResetPassword(data)
         .then(res => {
-          console.log(res);
           if (res.code === 200) {
             // this.PostFetchData(); //重新请求接口
             this.$message({
@@ -297,7 +339,6 @@ export default {
           }
         })
         .catch(error => {
-          console.log(error);
           this.listLoading = false;
         });
     },
@@ -306,7 +347,6 @@ export default {
       let data = { id: id };
       apiDeletUser(data)
         .then(res => {
-          console.log(res);
           if (res.code === 200) {
             this.PostFetchData(); //重新请求接口
           } else {
@@ -341,7 +381,6 @@ export default {
       // delete data.dateTime;
       apiGetUserList(data)
         .then(res => {
-          console.log(res);
           if (res.code === 200) {
             
             this.total = res.data.total;
@@ -350,12 +389,15 @@ export default {
             if(this.tableData.length >0){
               this.tableData.forEach(e=>{
                 let roleName = [];
+                let roleList = [];
                 let roleArr = e.role.split(',');
                 this.nameArray.map(j=>{
                   if(roleArr.indexOf(j.authCode)!=-1 ){
                     roleName.push(j.label)
+                    roleList.push(j.authCode)
                   }
                 })
+                e.role = roleList.join(',');
                 e['roleName'] = roleName.join(',');
               })
             }
@@ -379,7 +421,7 @@ export default {
     },
     // 查询数据
     onSubmit() {
-      // this.listQuery.currentPage = 1;
+      this.listQuery.pageIndex = 1;
 
       this.PostFetchData();
     },
@@ -465,6 +507,8 @@ export default {
     },
     // 新增/编辑表单取消提交
     cancleForm() {
+      // this.handleCheckChange();
+      // return false;
       this.formVisibleList.formVisible = false;
       let that = this;
       Object.keys(that.dialogForm).forEach(key => {
@@ -559,5 +603,13 @@ export default {
     color: #aaa;
     text-align: center;
   }
+}
+.el-tree-node.is-expanded>.el-tree-node__children {
+    display: flex;
+    flex-wrap: wrap;
+  .is-focusable{
+    width: 30%;
+  }
+  
 }
 </style>

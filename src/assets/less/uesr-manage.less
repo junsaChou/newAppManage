@@ -1,0 +1,38 @@
+.body {
+    // display: grid;
+    // grid-template-rows: 60px auto 60px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: stretch;
+    flex-direction: column;
+    overflow: hidden;
+    &.active {
+      grid-template-rows: 60px auto;
+      overflow: hidden;
+    }
+    .el-page-header {
+      padding: 5px 0;
+    }
+    .el-page-header__content {
+      line-height: 24px;
+    }
+    .el-form-item__label {
+      line-height: 32px;
+    }
+    .demo-table-expand {
+      font-size: 0;
+    }
+    .demo-table-expand label {
+      width: 100px;
+      color: #99a9bf;
+      overflow: hidden;
+    }
+    .demo-table-expand .el-form-item {
+      margin-right: 0;
+      margin-bottom: 0;
+      width: 24%;
+    }
+    .el-card {
+      min-height: 100px !important;
+    }
+  }

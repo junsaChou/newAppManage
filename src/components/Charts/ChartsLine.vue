@@ -22,6 +22,14 @@ export default {
       dom: null
     }
   },
+   watch: {//监听异步数据
+      data: { // content为父组件传递过来的对象
+            deep: true,
+            handler: function(newval,oldval){
+                this.drawing()
+            }
+      }
+  },
   mounted() {
     this.drawing()
   },

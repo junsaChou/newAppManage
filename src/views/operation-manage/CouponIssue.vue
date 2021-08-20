@@ -2,51 +2,7 @@
   <div class="table-classic-wrapper">
     <el-card shadow="always">
       <!-- 查询栏 -->
-      <el-form
-        ref="searchForm"
-        :inline="true"
-        :model="listQuery"
-        label-width="90px"
-        class="search-form"
-      >
-        <el-form-item label="优惠券名称">
-          <el-input v-model="listQuery.title " placeholder="请填写" />
-        </el-form-item>
-        <el-form-item label="发放用户">
-          <el-select v-model="listQuery.userType " placeholder="审核状态">
-            <el-option value label="全部" />
-            <el-option :value="0" label="全体用户" />
-            <el-option :value="1" label="部分用户" />
-          </el-select>
-        </el-form-item>
-            <el-form-item label="发放时间">
-          <el-date-picker
-            v-model="createMap"
-            type="datetimerange"
-            :picker-options="pickerOptions"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            align="right"
-            @change="changePicker"
-          ></el-date-picker>
-        </el-form-item>
-        <el-form-item label="发放状态">
-          <el-select v-model="listQuery.state">
-            <el-option value label="全部" />
-            <el-option :value="0" label="发放失败" />
-            <el-option :value="1" label="发放成功" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="发放人">
-          <el-input v-model="listQuery.operatorUser" placeholder="请填写" />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="onSubmit">搜索</el-button>
-          <el-button type="warning" @click="onReset">重置</el-button>
-        </el-form-item>
-      </el-form>
+      <mixSearch  v-model="listQuery"  :fields="searchFields" ref="form"  @reset="onReset"/>
       <!-- 操作栏 -->
       <!-- 表格栏 -->
       <el-table
@@ -64,7 +20,6 @@
           label="优惠券编码"
           align="center"
           width="100"
-          sortable
         />
         <el-table-column show-overflow-tooltip prop="title" label="优惠券名称" align="center" />
         <el-table-column show-overflow-tooltip  label="发放用户" align="center" >
@@ -90,13 +45,21 @@
             <span>{{scope.row.createTime  | formatDate}}</span>
           </template>
         </el-table-column>
+        <el-table-column show-overflow-tooltip prop="usedCount" label="使用人数" align="center" />
+        <el-table-column show-overflow-tooltip prop="unusedCount" label="未使用人数" align="center" />
+        <el-table-column show-overflow-tooltip prop="overdueCount" label="过期人数" align="center" />
+        <el-table-column show-overflow-tooltip label="有效期" align="center" width="120">
+          <template slot-scope="scope">
+            <span>{{  scope.row.validStartTime | formatDate }}</span>-<span>{{  scope.row.validEndTime | formatDate }}</span>
+          </template>
+        </el-table-column>
         <!-- <el-table-column prop="hobby" label="爱好" align="center" width="300" show-overflow-tooltip /> -->
       </el-table>
       <!-- 分页栏 -->
       <Pagination
         :total="total"
-        :page.sync="listQuery.pageIndex"
-        :limit.sync="listQuery.pageSize"
+        :page.sync="page.pageIndex"
+        :limit.sync="page.pageSize"
         @pagination="PostFetchData"
       />
       <!-- 新增/编辑 弹出栏 -->
@@ -108,66 +71,65 @@
 //发放优惠券列表  
 import {
   apiGetGiveOutRecordList,
-  apiEditUser,
-  apiDeletBanner,
-  apiCreateBanner
 } from "../../api/apilist";
 // import excel from "../../utils/excel";
 import validatorForm from "../../assets/js/validatorForm";
 import Pagination from "../../components/Pagination";
-import { validatAlphabetsNum } from "@/assets/js/validate";
-// import Hints from '../../components/Hints'
+import mixSearch from "../../components/mixSearch";
 
 export default {
   name: "Table",
-  components: { Pagination },
+  components: { Pagination,mixSearch },
   data() {
     return {
-        //快捷选择时间
-      pickerOptions: {
-        shortcuts: [
-          {
-            text: "最近一周",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit("pick", [start, end]);
-            }
-          },
-          {
-            text: "最近一个月",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              picker.$emit("pick", [start, end]);
-            }
-          },
-          {
-            text: "最近三个月",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-              picker.$emit("pick", [start, end]);
-            }
-          }
-        ]
-      },
+      //   //快捷选择时间
       // 数据列表加载动画
       listLoading: true,
       // 查询列表参数对象
       listQuery: {
-        title:null,//优惠券标题
-        userType:null,//发放用户状态
-        startTime : null,//创建时间
-        endTime  : null,//结束时间
-        state: null, //发放状态
-        operatorUser: null, //发放人
-        pageIndex: 1, //页码 ,
-        pageSize: 10 //每页数据量大小 ,
+        // title:null,//优惠券标题
+        // userType:null,//发放用户状态
+        // startTime : null,//创建时间
+        // endTime  : null,//结束时间
+        // state: null, //发放状态
+        // operatorUser: null, //发放人
+        // pageIndex: 1, //页码 ,
+        // pageSize: 10 //每页数据量大小 ,
       },
+      page:{
+        pageIndex: 1, //页码 ,
+        pageSize: 10, //每页数据量大小 ,
+      },
+      searchFields: [
+        { span: 2, prop: 'title', name: '优惠券名称', placeholder: '请输入' },
+        { span: 2, prop: 'userType', name: '发放用户', placeholder: '请选择', type: 'select',
+           options: [
+                    { label: '全部', value: null },
+                    { label: '全体用户', value: 0 },
+                    { label: '部分用户', value: 1 }
+                    ]
+        },
+        {span: 6, type: 'pickerOptionsPicker', name:'发放时间', placeholder: '发放时间', prop: 'dateTime'},
+        { span: 2, prop: 'state',name:'发放状态', placeholder: '请输入',  type: 'select',
+          options: [
+                    { label: '全部', value: null },
+                    { label: '发放失败', value: 0 },
+                    { label: '发放成功', value: 1 },
+                    ]
+        },
+        { span: 2, prop: 'operatorUser', name: '发放人', placeholder: '请输入' },
+        {
+          span: 2,
+          type: 'reset',
+          style:'warning',
+          class:'resetName',
+          label: '重置',
+          options: [
+            { label: '搜索', type: 'primary', click: this.onSubmit },
+            // { label: '重置', type: 'warning', click: this.onReset },
+          ],
+        },
+      ],
       createMap:null,//创建日期map
       // 新增/编辑提交表单对象
       // 数据总条数
@@ -223,56 +185,14 @@ export default {
   },
   methods: {
 
-    // 删除数据
-    handleDelete(index, row) {
-      console.log(index, row);
-      this.$confirm("此操作将删除选中数据, 是否继续?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      })
-        .then(() => {
-          this.deleteApi(row);
-          // 此处可添加--删除接口
-          // 删除成功调用fetchData方法更新列表
-          apiDeletBanner();
-          this.$message({
-            type: "success",
-            message: "删除成功!"
-          });
-        })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "已取消删除"
-          });
-        });
-    },
-    deleteApi(id) {
-      let data = { bannerId: id };
-      apiDeletBanner(data)
-        .then(res => {
-          console.log(res);
-          if (res.code === 200) {
-            this.PostFetchData(); //重新请求接口
-          } else {
-            this.$message({
-              type: "warning",
-              message: res.message
-            });
-          }
-        })
-        .catch(error => {
-          console.log(error);
-          this.listLoading = false;
-        });
-    },
     // 获取数据列表
     PostFetchData() {
       this.listLoading = true;
       // 获取审核数据列表接口
-      let data = this.listQuery;
-      // delete data.dateTime;
+      let { pageIndex,pageSize } = this.page;
+      let searchData = Object.assign({}, this.listQuery);
+      this.upDateTime(searchData.dateTime,'startTime', 'endTime','dateTime',searchData);
+      let data = { ...searchData,pageIndex,pageSize}
       apiGetGiveOutRecordList(data)
         .then(res => {
           console.log(res);
@@ -300,8 +220,7 @@ export default {
     },
     // 查询数据
     onSubmit() {
-      // this.listQuery.currentPage = 1;
-
+      this.page.pageIndex = 1;
       this.PostFetchData();
     },
     //重置数据
@@ -310,11 +229,7 @@ export default {
       Object.keys(that.listQuery).forEach(key => {
         that.listQuery[key] = null;
       });
-      this.createMap = null;
-      this.listQuery.pageIndex = 1;
-      this.listQuery.pageSize = 10;
-      this.PostFetchData();
-      // this.$refs["searchForm"].resetFields(); //清空表单
+      this.onSubmit();
     }
   }
 };

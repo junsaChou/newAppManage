@@ -309,6 +309,7 @@ export default {
     },
     // 查询数据
     onSubmit() {
+      this.listQuery.pageIndex = 1;
       this.PostFetchData();
     },
     //重置数据

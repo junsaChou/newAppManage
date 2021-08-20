@@ -2,7 +2,8 @@
   <div class="table-classic-wrapper">
     <el-card shadow="always">
       <!-- 查询栏 -->
-      <el-form
+      <mixSearch  v-model="listQuery"  :fields="searchFields" ref="form"  @reset="onReset"/>
+      <!-- <el-form
         ref="searchForm"
         :inline="true"
         :model="listQuery"
@@ -13,10 +14,9 @@
           <el-input v-model="listQuery.title " placeholder="请填写" />
         </el-form-item>
         <el-form-item label="券状态">
-          <el-select v-model="listQuery.type  " placeholder="请输入券状态">
-            <el-option value label="全部" />
-            <el-option :value="0" label="充值" />
-            <!-- <el-option :value="1" label="抵扣" /> -->
+          <el-select v-model="listQuery.useState  " placeholder="请输入券状态">
+            <el-option :value="1" label="已使用" />
+            <el-option :value="2" label="已过期" />
           </el-select>
         </el-form-item>
         <el-form-item label="发放时间">
@@ -49,11 +49,11 @@
           <el-input v-model="listQuery.operatorUser" placeholder="请填写" />
         </el-form-item>
         <el-form-item>
-          <el-button type="success" @click="exportList">导出</el-button>
           <el-button type="primary" @click="onSubmit">搜索</el-button>
           <el-button type="warning" @click="onReset">重置</el-button>
+          <el-button type="success" @click="exportList">导出</el-button>
         </el-form-item>
-      </el-form>
+      </el-form> -->
       <!-- 操作栏 -->
       <!-- 表格栏 -->
       <el-table
@@ -89,8 +89,8 @@
           </template>
         </el-table-column>
          <el-table-column show-overflow-tooltip label="使用时间" align="center" width="120">
-          <template slot-scope="scope">
-            <span>{{scope.row.validStartTime  | formatDate}}</span>
+          <template slot-scope="scope" >
+            <span v-if="scope.row.useTime!=''">{{scope.row.useTime  | formatDate}}</span>
           </template>
         </el-table-column>
         <el-table-column show-overflow-tooltip label="过期时间" align="center" width="120">
@@ -107,8 +107,8 @@
       <!-- 分页栏 -->
       <Pagination
         :total="total"
-        :page.sync="listQuery.pageIndex"
-        :limit.sync="listQuery.pageSize"
+        :page.sync="page.pageIndex"
+        :limit.sync="page.pageSize"
         @pagination="PostFetchData"
       />
       <!-- 新增/编辑 弹出栏 -->
@@ -123,65 +123,60 @@ import {
   apiUserCouponListExport
 } from "../../api/apilist";
 // import excel from "../../utils/excel";
-import validatorForm from "../../assets/js/validatorForm";
 import Pagination from "../../components/Pagination";
 import { excelList } from "../../assets/js/validate";//导出 excel 方法
-// import Hints from '../../components/Hints'
+import mixSearch from "../../components/mixSearch";
 
 export default {
   name: "useTable",
-  components: { Pagination },
+  components: { Pagination,mixSearch },
   data() {
     return {
-        //快捷选择时间
-      pickerOptions: {
-        shortcuts: [
-          {
-            text: "最近一周",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit("pick", [start, end]);
-            }
-          },
-          {
-            text: "最近一个月",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              picker.$emit("pick", [start, end]);
-            }
-          },
-          {
-            text: "最近三个月",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-              picker.$emit("pick", [start, end]);
-            }
-          }
-        ]
-      },
       // 数据列表加载动画
       listLoading: true,
       // 查询列表参数对象
-      listQuery: {
-        title:null,//优惠券标题
-        type :null,//券状态
-        startTime : null,//创建时间
-        endTime  : null,//结束时间
-        state: null, //发放状态
-        operatorUser: null, //发放人
+      page:{
         pageIndex: 1, //页码 ,
         pageSize: 10, //每页数据量大小 ,
-        updateEndTime: null, // 跟新结束时间 ,
-        updateStartTime: null // 跟新开始时间
       },
-      createMap:null,//创建日期map
-      updateMAp: null, //更新时间储存
+      searchFields: [
+        { span: 2, prop: 'title', name: '优惠券名称', placeholder: '请输入' },
+        { span: 2, prop: 'useState', name: '券状态', placeholder: '请选择', type: 'select',
+           options: [
+                    { label: '已使用', value: 1 },
+                    { label: '已过期', value: 2 }
+                    ]
+        },
+        {span: 6, type: 'pickerOptionsDate', name:'发放时间', placeholder: '发放时间', prop: 'createMap'},
+        {span: 6, type: 'pickerOptionsDate', name:'使用时间', placeholder: '使用时间', prop: 'updateMAp'},
+        { span: 2, prop: 'operatorUser', name: '发放人', placeholder: '请输入' },
+        {
+          span: 2,
+          type: 'reset',
+          style:'warning',
+          class:'resetName',
+          label: '重置',
+          options: [
+            { label: '搜索', type: 'primary', click: this.onSubmit },
+            { label: '导出', type: 'success', click: this.exportList },
+          ],
+        },
+      ],
+      listQuery: {
+        // title:null,//优惠券标题
+        // useState: 1,//券状态
+        // type :null,
+        // startTime : null,//创建时间
+        // endTime  : null,//结束时间
+        // state: null, //发放状态
+        // operatorUser: null, //发放人
+        // pageIndex: 1, //页码 ,
+        // pageSize: 10, //每页数据量大小 ,
+        // useEndTime: null, // 跟新结束时间 ,
+        // useStartTime: null // 跟新开始时间
+      },
+      // createMap:null,//创建日期map
+      // updateMAp: null, //更新时间储存
       // 新增/编辑提交表单对象
       // 数据总条数
       total: 0,
@@ -205,10 +200,14 @@ export default {
   methods: {
     // 获取数据列表
     PostFetchData() {
-      this.listLoading = true;
+      // this.listLoading = true;
       // 获取审核数据列表接口
-      let data = this.listQuery;
-      // delete data.dateTime;
+      // let data = this.listQuery;
+      let { pageIndex,pageSize } = this.page;
+      let searchData = Object.assign({}, this.listQuery);
+      this.upDateTime(searchData.createMap,'startTime', 'endTime','createMap',searchData);
+      this.upDateTime(searchData.updateMAp,'useStartTime', 'useEndTime','updateMAp',searchData);
+      let data = { ...searchData,pageIndex,pageSize}
       apiGetUserCouponListUse(data)
         .then(res => {
           console.log(res);
@@ -223,34 +222,11 @@ export default {
           this.listLoading = false;
         });
     },
-    changePicker() {
-      //时间选择
-      // if (val) {
-      //   this.listQuery.startTime = val[0];
-      //   this.listQuery.endTime = val[1];
-      // } else {
-      //   this.listQuery.startTime = null;
-      //   this.listQuery.endTime = null;
-      // }
-      if (this.createMap != null) {
-        this.listQuery.startTime = this.createMap[0];
-        this.listQuery.endTime = this.createMap[1];
-      } else {
-        this.listQuery.startTime = null;
-        this.listQuery.endTime = null;
-      }
-      if (this.updateMAp != null) {
-        this.listQuery.updateStartTime = this.updateMAp[0];
-        this.listQuery.updateEndTime = this.updateMAp[1];
-      } else {
-        this.listQuery.updateStartTime = null;
-        this.listQuery.updateEndTime = null;
-      }
-      console.log(val);
-    },
        //渠道导出
     exportList(){
-      let data = this.listQuery;
+      let data = Object.assign({}, this.listQuery)
+      // delete data.pageSize;
+      // delete data.pageIndex;
       apiUserCouponListExport(data) 
        .then(res => {
           console.log(res);
@@ -269,8 +245,7 @@ export default {
     },
     // 查询数据
     onSubmit() {
-      // this.listQuery.currentPage = 1;
-
+      this.page.pageIndex = 1;
       this.PostFetchData();
     },
     //重置数据
@@ -279,12 +254,8 @@ export default {
       Object.keys(that.listQuery).forEach(key => {
         that.listQuery[key] = null;
       });
-      this.createMap = null;
-      this.updateMAp = null;
-      this.listQuery.pageIndex = 1;
-      this.listQuery.pageSize = 10;
-      this.PostFetchData();
-      // this.$refs["searchForm"].resetFields(); //清空表单
+      that.listQuery.useState = 1,//券状态
+      that.onSubmit();
     }
   }
 };

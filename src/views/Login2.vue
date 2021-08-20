@@ -66,13 +66,12 @@
 
 <script>
 import Background from "../assets/img/login-background2.png";
-import axios from "axios";
+// import axios from "axios";
 import { validatAlphabetsNum } from "@/assets/js/validate";
 // import { login,getImageCaptcha } from "../api/login";
 //登录 获取用户信息 获取验证码
 import { apiLogin, apiGetUserInfo,apiGetImageCaptcha } from "../api/apilist";
-import { getUserInfo } from "../utils/cookie";
-import { mapGetters, mapMutations } from "vuex";
+import {  mapMutations } from "vuex";
 export default {
   name: "Login2",
   data() {
@@ -176,7 +175,6 @@ export default {
         }
         apiGetImageCaptcha(params)
           .then(res => {
-            console.log(res)
             let blob = new Blob([res], { type: "image/jpg" });
             var Fr = new FileReader();
             Fr.readAsDataURL(blob);
