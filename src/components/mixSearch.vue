@@ -70,6 +70,19 @@
                 align="right"
               ></el-date-picker>
             </el-form-item>
+            <el-form-item v-else-if="item.type == 'pickerOptionsOld'"   :label="item.name">
+              <el-date-picker
+                v-bind="item"
+                v-model="form[item.prop]"
+                type="datetimerange"
+                :picker-options="pickerOptionsDialog"
+                value-format="yyyy-MM-dd HH:mm:ss"
+                range-separator="至"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                align="right"
+              ></el-date-picker>
+            </el-form-item>
             <template v-else-if="item.type == 'rangesDatetime'">
               <div class="range">
                 <el-time-picker v-bind="item" v-model="form[item.prop]" range-separator="-" value-format="HH:mm:ss" format="HH:mm:ss" start-placeholder="开始时间" end-placeholder="结束时间" clearable />
@@ -158,6 +171,30 @@ export default {
     return {
       pickerOptions:pickerOptionsApi,
       pickerApiOld : {
+         // 设置不能选择的日期
+        onPick: ({ maxDate, minDate }) => {
+            this.choiceDate0 = minDate.getTime();
+            if (maxDate) {
+                this.choiceDate0 = '';
+            }
+        },
+        disabledDate:
+            (time) => {
+                let choiceDateTime = new Date(this.choiceDate0).getTime();
+                const minTime = new Date(choiceDateTime).setMonth(new Date(choiceDateTime).getMonth() - 1);
+                const maxTime = new Date(choiceDateTime).setMonth(new Date(choiceDateTime).getMonth() + 1);
+                const min = minTime;
+                const newDate = new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1;
+                const max = newDate < maxTime ? newDate : maxTime;
+            //如果已经选中一个日期 则 返回 该日期前后一个月时间可选
+                if (this.choiceDate0) {
+                    return time.getTime() < min || time.getTime() > max;
+                }
+            //若一个日期也没选中 则 返回 当前日期以前日期可选
+                return time.getTime() > newDate;
+            }
+      },
+      pickerOptionsDialog:{
          // 设置不能选择的日期
         onPick: ({ maxDate, minDate }) => {
             this.choiceDate0 = minDate.getTime();

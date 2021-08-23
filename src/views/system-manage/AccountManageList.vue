@@ -2,24 +2,7 @@
   <div class="table-classic-wrapper">
     <el-card shadow="always">
       <!-- 查询栏 -->
-      <el-form
-        ref="searchForm"
-        :inline="true"
-        :model="listQuery"
-        label-width="90px"
-        class="search-form"
-      >
-        <el-form-item label="用户账号">
-          <el-input v-model="listQuery.account" placeholder="请填写" />
-        </el-form-item>
-        <el-form-item label="姓名">
-          <el-input v-model="listQuery.userName" placeholder="请填写" />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="onSubmit">搜索</el-button>
-          <el-button type="warning" @click="onReset">重置</el-button>
-        </el-form-item>
-      </el-form>
+      <mixSearch  v-model="listQuery"  :fields="searchFields" ref="form"  @reset="onReset"/>
       <!-- 操作栏 -->
       <div class="control-btns">
         <el-button type="primary" @click="handleCreate">创建账户</el-button>
@@ -50,15 +33,9 @@
             <span>{{scope.row.createTime | formatDate}}</span>
           </template>
         </el-table-column>
-        <!-- <el-table-column show-overflow-tooltip label="上次登录时间" align="center" width="120">
-          <template slot-scope="scope">
-            <span>{{scope.row.endTime | formatDate}}</span>
-          </template>
-        </el-table-column>-->
         <el-table-column show-overflow-tooltip label="状态" align="center">
           <template slot-scope="scope">{{ scope.row.state == '0'? '停用':'启用' }}</template>
         </el-table-column>
-        <!-- <el-table-column prop="hobby" label="爱好" align="center" width="300" show-overflow-tooltip /> -->
         <el-table-column label="操作" fixed="right" align="center" width="150">
           <template slot-scope="scope">
             <el-button size="mini" type="primary" @click="handleEdit(scope.$index,scope.row)">编辑</el-button>
@@ -69,8 +46,8 @@
       <!-- 分页栏 -->
       <Pagination
         :total="total"
-        :page.sync="listQuery.pageIndex"
-        :limit.sync="listQuery.pageSize"
+        :page.sync="page.pageIndex"
+        :limit.sync="page.pageSize"
         @pagination="PostFetchData"
       />
       <!-- 新增/编辑 弹出栏 -->
@@ -149,22 +126,38 @@ import {
 import validatorForm from "../../assets/js/validatorForm";
 import Pagination from "../../components/Pagination";
 import { nameArray , nameData} from "@/assets/js/mock"
-// import Hints from '../../components/Hints'
+import mixSearch from "../../components/mixSearch";
 
 export default {
   name: "AccountManage",
-  components: { Pagination },
+  components: { Pagination,mixSearch },
   data() {
     return {
       // 数据列表加载动画
       listLoading: true,
       // 查询列表参数对象
       listQuery: {
-        account: null, //用户账户
-        userName: null, //用户名
-        pageIndex: 1, //页码 ,
-        pageSize: 10 //每页数据量大小 ,
+        // account: null, //用户账户
+        // userName: null, //用户名
       },
+      page:{
+        pageIndex: 1, //页码 ,
+        pageSize: 10, //每页数据量大小 ,
+      },
+      searchFields: [
+        { span: 2, prop: 'account', name: '用户账号', placeholder: '请输入' },
+        {span: 2, prop: 'userName', name:'姓名', placeholder: '请输入'},
+        {
+          span: 2,
+          type: 'reset',
+          style:'warning',
+          class:'resetName',
+          label: '重置',
+          options: [
+            { label: '搜索', type: 'primary', click: this.onSubmit }
+          ],
+        },
+      ],
       // 新增/编辑提交表单对象
       dialogForm: {
         account: null, //账户
@@ -234,8 +227,6 @@ export default {
       // 防止多次连续提交表单
       isSubmit: false,
       // 导入数据 弹出框显示/隐藏
-      importVisible: false
-      //是否出现审核图片
     };
   },
   created() {
@@ -375,10 +366,13 @@ export default {
     },
     // 获取数据列表
     PostFetchData() {
+      // this.listLoading = true;
+      // // 获取审核数据列表接口
+      // let data = this.listQuery;
       this.listLoading = true;
-      // 获取审核数据列表接口
-      let data = this.listQuery;
-      // delete data.dateTime;
+      let { pageIndex,pageSize } = this.page;
+      let searchData = Object.assign({}, this.listQuery);
+      let data = { ...searchData,pageIndex,pageSize}
       apiGetUserList(data)
         .then(res => {
           if (res.code === 200) {
@@ -421,7 +415,7 @@ export default {
     },
     // 查询数据
     onSubmit() {
-      this.listQuery.pageIndex = 1;
+      this.page.pageIndex = 1;
 
       this.PostFetchData();
     },
@@ -431,9 +425,7 @@ export default {
       Object.keys(that.listQuery).forEach(key => {
         that.listQuery[key] = null;
       });
-      this.listQuery.pageIndex = 1;
-      this.listQuery.pageSize = 10;
-      this.PostFetchData();
+      that.onSubmit();
       // this.$refs["searchForm"].resetFields(); //清空表单
     },
     // 新增/编辑表单确认提交

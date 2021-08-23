@@ -3,58 +3,6 @@
     <el-card shadow="always">
       <!-- 查询栏 -->
       <mixSearch  v-model="listQuery"  :fields="searchFields" ref="form"  @reset="onReset"/>
-      <!-- <el-form
-        ref="searchForm"
-        :inline="true"
-        :model="listQuery"
-        label-width="90px"
-        class="search-form"
-      >
-        <el-form-item label="优惠券名称">
-          <el-input v-model="listQuery.title " placeholder="请填写" />
-        </el-form-item>
-        <el-form-item label="券状态">
-          <el-select v-model="listQuery.useState  " placeholder="请输入券状态">
-            <el-option :value="1" label="已使用" />
-            <el-option :value="2" label="已过期" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="发放时间">
-          <el-date-picker
-            v-model="createMap"
-            type="datetimerange"
-            :picker-options="pickerOptions"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            align="right"
-            @change="changePicker"
-          ></el-date-picker>
-        </el-form-item>
-           <el-form-item label="使用时间">
-          <el-date-picker
-            v-model=" updateMAp"
-            type="datetimerange"
-            :picker-options="pickerOptions"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            align="right"
-            @change="changePicker"
-          ></el-date-picker>
-        </el-form-item>
-        <el-form-item label="发放人">
-          <el-input v-model="listQuery.operatorUser" placeholder="请填写" />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="onSubmit">搜索</el-button>
-          <el-button type="warning" @click="onReset">重置</el-button>
-          <el-button type="success" @click="exportList">导出</el-button>
-        </el-form-item>
-      </el-form> -->
-      <!-- 操作栏 -->
       <!-- 表格栏 -->
       <el-table
         ref="multipleTable"
@@ -190,7 +138,6 @@ export default {
       // 防止多次连续提交表单
       isSubmit: false,
       // 导入数据 弹出框显示/隐藏
-      importVisible: false
       //是否出现审核图片
     };
   },

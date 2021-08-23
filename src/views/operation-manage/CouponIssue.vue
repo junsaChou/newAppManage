@@ -176,7 +176,6 @@ export default {
       // 防止多次连续提交表单
       isSubmit: false,
       // 导入数据 弹出框显示/隐藏
-      importVisible: false
       //是否出现审核图片
     };
   },
@@ -206,17 +205,6 @@ export default {
           console.log(error);
           this.listLoading = false;
         });
-    },
-    changePicker(val) {
-      //时间选择
-      if (val) {
-        this.listQuery.startTime = val[0];
-        this.listQuery.endTime = val[1];
-      } else {
-        this.listQuery.startTime = null;
-        this.listQuery.endTime = null;
-      }
-      console.log(val);
     },
     // 查询数据
     onSubmit() {

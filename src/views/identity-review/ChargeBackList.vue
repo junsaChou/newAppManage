@@ -2,37 +2,7 @@
   <div class="table-classic-wrapper">
     <el-card shadow="always">
       <!-- 查询栏 -->
-      <el-form
-        ref="searchForm"
-        :inline="true"
-        :model="listQuery"
-        label-width="90px"
-        class="search-form"
-      >
-        <el-form-item label="订单号">
-          <el-input v-model="listQuery.orderNo" placeholder="请填写" />
-        </el-form-item>
-        <el-form-item label="手机号码">
-          <el-input v-model="listQuery.phone" placeholder="请填写" />
-        </el-form-item>
-        <el-form-item label="来源渠道">
-          <el-input v-model="listQuery.channel" placeholder="请填写" />
-        </el-form-item>
-        <el-form-item label="退单状态">
-          <el-select v-model="listQuery.state" placeholder="审核状态">
-            <el-option value label="全部" />
-            <el-option :value="0" label="未申请" />
-            <el-option :value="1" label="拒绝退单" />
-            <el-option :value="2" label="待审核" />
-            <el-option :value="3" label="半价退" />
-            <el-option :value="4" label="全款退" />
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="onSubmit">搜索</el-button>
-          <el-button type="warning" @click="onReset">重置</el-button>
-        </el-form-item>
-      </el-form>
+      <mixSearch  v-model="listQuery"  :fields="searchFields" ref="form"  @reset="onReset"/>
       <!-- 表格栏 -->
       <el-table
         ref="multipleTable"
@@ -96,8 +66,8 @@
       <!-- 分页栏 -->
       <Pagination
         :total="total"
-        :page.sync="listQuery.pageIndex"
-        :limit.sync="listQuery.pageSize"
+        :page.sync="page.pageIndex"
+        :limit.sync="page.pageSize"
         @pagination="PostFetchData"
       />
       <!-- 新增/编辑 弹出栏 -->
@@ -172,23 +142,52 @@ import {
 } from "../../api/apilist";
 // import excel from "../../utils/excel";
 import Pagination from "../../components/Pagination";
-// import Hints from '../../components/Hints'
+import mixSearch from "../../components/mixSearch";
 
 export default {
   name: "Table",
-  components: { Pagination },
+  components: { Pagination,mixSearch },
   data() {
     return {
       // 数据列表加载动画
       listLoading: true,
       // 查询列表参数对象
       listQuery: {
-        channel: null, // 来源 ,
-        orderNo: null, // 订单 ,
-        phone: null, // 手机 ,
-        state: null, // 退单状态0未申请 1拒绝退单 2待审核 3半价退 4全款退
+        // channel: null, // 来源 ,
+        // orderNo: null, // 订单 ,
+        // phone: null, // 手机 ,
+        // state: null, // 退单状态0未申请 1拒绝退单 2待审核 3半价退 4全款退
+        // pageIndex: 1, //页码 ,
+        // pageSize: 10 //每页数据量大小 ,
+      },
+      searchFields: [
+        { span: 2, prop: 'orderNo', name: '订单号', placeholder: '请输入' },
+        {span: 2, prop: 'phone', name:'手机号码', placeholder: '请输入',minlength:"11", maxlength:"11"},
+        {span: 2, prop: 'channel', name:'来源渠道', placeholder: '请输入'},
+        { span: 2, prop: 'state', name: '退单状态', placeholder: '请选择', type: 'select',
+           options: [
+                    { label: '全部', value: null},
+                    { label: '未申请', value: 0 },
+                    { label: '拒绝退单', value: 1 },
+                    { label: '待审核', value: 2 },
+                    { label: '半价退', value: 3 },
+                    { label: '全款退', value: 4 },
+                    ]
+        },
+        {
+          span: 2,
+          type: 'reset',
+          style:'warning',
+          class:'resetName',
+          label: '重置',
+          options: [
+            { label: '搜索', type: 'primary', click: this.onSubmit }
+          ],
+        },
+      ],
+      page:{
         pageIndex: 1, //页码 ,
-        pageSize: 10 //每页数据量大小 ,
+        pageSize: 10, //每页数据量大小 ,
       },
       // 新增/编辑提交表单对象
       dialogForm: {
@@ -290,9 +289,10 @@ export default {
     // 获取数据列表
     PostFetchData() {
       this.listLoading = true;
-      // 获取退单数据列表接口
-      console.log(this.listQuery);
-      let data = this.listQuery;
+      let { pageIndex,pageSize } = this.page;
+      let searchData = Object.assign({}, this.listQuery);
+      let data = { ...searchData,pageIndex,pageSize}
+
       apiChargebackList(data)
         .then(res => {
           console.log(res);
@@ -309,7 +309,7 @@ export default {
     },
     // 查询数据
     onSubmit() {
-      this.listQuery.pageIndex = 1;
+      this.page.pageIndex = 1;
       this.PostFetchData();
     },
     //重置数据
@@ -318,9 +318,7 @@ export default {
       Object.keys(that.listQuery).forEach(key => {
         that.listQuery[key] = null;
       });
-      this.listQuery.pageIndex = 1;
-      this.listQuery.pageSize = 10;
-      this.PostFetchData();
+      this.onSubmit();;
     },
     // 新增/编辑表单确认提交
     submitForm(formName) {

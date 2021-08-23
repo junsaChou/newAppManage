@@ -3,87 +3,10 @@
     <el-card v-if="showDetail" shadow="always">
       <!-- 查询栏 -->
       <mixSearch  v-model="listQuery"  :fields="searchFields" ref="form"  @reset="onReset"/>
-      <!-- <el-form
-        ref="searchForm"
-        :inline="true"
-        :model="listQuery"
-        label-width="90px"
-        class="search-form"
-      >
-        <el-form-item label="手机">
-          <el-input v-model="listQuery.phone" placeholder="手机" />
-        </el-form-item>
-        <el-form-item label="审核状态">
-          <el-select v-model="listQuery.authState" placeholder="审核状态">
-            <el-option value label="全部" />
-            <el-option :value="0" label="未认证" />
-            <el-option :value="1" label="认证中" />
-            <el-option :value="2" label="认证失败" />
-            <el-option :value="3" label="认证成功" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="公司名称">
-          <el-input v-model="listQuery.companyName" placeholder="公司名称" />
-        </el-form-item>
-        <el-form-item label="申请时间">
-          <el-date-picker
-            v-model="createMap"
-            type="datetimerange"
-            :picker-options="pickerOptions"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            align="right"
-            @change="changePicker"
-          ></el-date-picker>
-        </el-form-item>
-        <el-form-item label="认证状态">
-          <el-select v-model="listQuery.faceRecognition" placeholder="认证状态">
-            <el-option value label="全部" />
-            <el-option :value="0" label="未识别" />
-            <el-option :value="1" label="已识别" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="渠道">
-          <el-input v-model="listQuery.channelSource" placeholder="请填写" />
-        </el-form-item>
-        <el-form-item label="更新时间">
-          <el-date-picker
-            type="datetimerange"
-            v-model="updateMAp"
-            :picker-options="pickerOptions"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            align="right"
-            @change="changePicker"
-          ></el-date-picker>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="onSearch">搜索</el-button>
-          <el-button type="warning" @click="onReset">重置</el-button>
-        </el-form-item>
-      </el-form> -->
-
       <!-- 表格栏 -->
-      <el-table
-        ref="multipleTable"
-        v-loading="listLoading"
-        :data="tableData"
-        tooltip-effect="dark"
-        style="width: 100%"
-        size="medium"
+      <el-table  ref="multipleTable" v-loading="listLoading"  :data="tableData"  tooltip-effect="dark"  style="width: 100%" size="medium"
       >
-        <!-- <el-table-column type="selection" width="60" /> -->
-        <el-table-column
-          show-overflow-tooltip
-          prop="id"
-          label="ID"
-          align="center"
-          width="80"
-          sortable
+      <el-table-column show-overflow-tooltip prop="id" label="ID" align="center" width="80" sortable
         />
         <el-table-column show-overflow-tooltip prop="name" label="姓名" align="center" />
         <el-table-column show-overflow-tooltip prop="phone" label="手机号码" align="center" />
@@ -328,7 +251,7 @@ export default {
       listLoading: true,
       // 查询列表参数对象
       listQuery: {
-        // authState: 1, // [0:未认证],[1:认证中],[2:认证失败],[3,认证成功]，[4,冻结] ,
+        authState: 1, // [0:未认证],[1:认证中],[2:认证失败],[3,认证成功]，[4,冻结] ,
         // channelSource: null, // 渠道来源 ,
         // companyName: null, // 公司名称 ,
         // endTime: null, //结束时间
@@ -424,6 +347,7 @@ export default {
     };
   },
   created() {
+    // this.listQuery.authState = 1;
     this.PostFetchData();
   },
   methods: {
@@ -463,11 +387,9 @@ export default {
       this.upDateTime(searchData.createMap,'startTime', 'endTime','createMap',searchData);
       this.upDateTime(searchData.updateMAp,'updateStartTime', 'updateEndTime','updateMAp',searchData);
       let data = { ...searchData,pageIndex,pageSize}
-      console.log(data)
       // return 
       apiGetAuthList(data)
         .then(res => {
-          console.log(res);
           // const data = res.data;
           if (res.code === 200) {
             this.total = res.data.total;
@@ -492,11 +414,6 @@ export default {
         that.listQuery[key] = null;
       });
       that.onSearch();
-      // this.createMap = null;
-      // this.updateMAp = null;
-      // this.pageIndex = 1;
-      // this.pageSize = 10;
-      // this.PostFetchData();
     },
     //点击审核按钮
     async views(row) {
@@ -651,23 +568,6 @@ export default {
           this.listLoading = false;
         });
     },
-    // changePicker() {
-    //   //点击确定时间
-    //   if (this.createMap != null) {
-    //     this.listQuery.startTime = this.createMap[0];
-    //     this.listQuery.endTime = this.createMap[1];
-    //   } else {
-    //     this.listQuery.startTime = null;
-    //     this.listQuery.endTime = null;
-    //   }
-    //   if (this.updateMAp != null) {
-    //     this.listQuery.updateStartTime = this.updateMAp[0];
-    //     this.listQuery.updateEndTime = this.updateMAp[1];
-    //   } else {
-    //     this.listQuery.updateStartTime = null;
-    //     this.listQuery.updateEndTime = null;
-    //   }
-    // },
     onSubmit(val) {
       let data = {};
       if (val == "isSuccess") {

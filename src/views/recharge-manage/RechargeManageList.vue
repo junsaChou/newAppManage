@@ -80,10 +80,6 @@
           <el-form-item label="充值金额：" prop="amount" maxlength="6">
             <el-input v-model="dialogForm.amount" />
           </el-form-item>
-          <!-- <el-form-item label="活动链接：" prop="linkUrl">
-            <el-input v-model="dialogForm.linkUrl" />
-          </el-form-item> -->
-
           <div class="footer-item">
             <el-button @click="cancleForm">取 消</el-button>
             <el-button
@@ -95,18 +91,6 @@
           </div>
         </el-form>
       </el-dialog>
-      <!-- <div class="upload-box">
-          <span>选择文件：</span>
-          <Upload :files-format="filesFormat">
-            <i class="vue-dsn-icon-upload" />上传文件
-          </Upload>
-      </div>-->
-      <!-- <div class="hints">TIP：请选择要导出数据的格式。</div>
-        <span slot="footer">
-          <el-button @click="cancleImport">取 消</el-button>
-          <el-button type="primary" @click="confirmImport">确 定</el-button>
-        </span>
-      </el-dialog>-->
     </el-card>
       <RewardList v-if="!rewardListForm.flag" :isActiviteId = "2"   @func="getMsgFormSon"></RewardList>
   </div>
@@ -208,8 +192,6 @@ export default {
       // 防止多次连续提交表单
       isSubmit: false,
       // 导入数据 弹出框显示/隐藏
-      importVisible: false
-      //是否出现审核图片
     };
   },
   created() {

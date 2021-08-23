@@ -1,70 +1,7 @@
 <template>
   <div class="table-classic-wrapper">
-    <!-- <Hints>
-      <template slot="hintName">Table表格组件</template>
-      <template slot="hintInfo">
-        <p>element-Table：使用elementUI的Table组件，可用于展示多条结构类似的数据，并对其进行相关操作</p>
-        <p>地址：访问 <el-link type="success" href="https://element.eleme.cn/2.13/TableClassic.vue#/zh-CN/component/table" target="_blank">element-Table</el-link></p>
-      </template>
-    </Hints>   :rules="formRules"-->
     <el-card v-if="showDetail" shadow="always">
-      <el-form
-        ref="orderListForm"
-        :inline="true"
-        size="small"
-      
-        :model="orderListForm"
-        label-width="90px"
-        class="search-form"
-      >
-        <!-- <el-form-item prop="orderNo" label="订单号">
-          <el-input clearable v-model="orderListForm.orderNo " />
-        </el-form-item> -->
-        <el-form-item prop="customerName" label="姓名">
-          <el-input clearable v-model="orderListForm.customerName" />
-        </el-form-item>
-        <el-form-item prop="customerPhone " label="手机号">
-          <el-input clearable v-model="orderListForm.customerPhone " minlength="11" maxlength="11" />
-        </el-form-item>
-        <el-form-item prop="channel" label="来源渠道">
-          <el-input clearable v-model="orderListForm.channel" />
-        </el-form-item>
-        <el-form-item prop="userPhone" label="经理手机号">
-          <el-input clearable v-model="orderListForm.userPhone" minlength="11" maxlength="11" />
-        </el-form-item>
-        <el-form-item prop="orderState" label="订单状态">
-          <!-- userState (string, optional): 用户状态0冻结 1正常 -->
-          <el-select clearable v-model="orderListForm.orderState " @change="change">
-            <el-option label="全部" value></el-option>
-            <el-option label="待抢" value="0"></el-option>
-            <el-option label="已抢" value="1"></el-option>
-            <el-option label="弃置" value="2"></el-option>
-            <el-option label="已放款" value="3"></el-option>
-            <el-option label="半价退单" value="4"></el-option>
-            <el-option label="全款退单" value="5"></el-option>
-            <el-option label="待审核" value="6"></el-option>
-            <el-option label="拒绝退单" value="7"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item prop="dateTime" label="申请时间">
-          <el-date-picker
-            v-model="dateTime"
-            type="datetimerange"
-            @change="upDate"
-            :picker-options="pickerOptions"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            align="right"
-          ></el-date-picker>
-        </el-form-item>
-        <el-form-item>
-          <!-- <el-button type="success" @click="getDataUser">搜索</el-button> -->
-          <el-button type="primary" @click="onSubmit">查询</el-button>
-          <el-button type="warning" @click="onReset">重置</el-button>
-        </el-form-item>
-      </el-form>
+      <mixSearch  v-model="listQuery"  :fields="searchFields" ref="form"  @reset="onReset"/>
       <!-- 表格栏 -->
       <el-table
         ref="multipleTable"
@@ -177,8 +114,8 @@
       <!-- 分页栏 -->
       <Pagination
         :total="total"
-        :page.sync="pageIndex"
-        :limit.sync="pageSize"
+        :page.sync="page.pageIndex"
+        :limit.sync="page.pageSize"
         @pagination="PostFetchData"
       />
       <!-- 新增/编辑 弹出栏 -->
@@ -382,69 +319,65 @@
     </div>
   </div>
 </template>
-
 <script>
-// import { getTableList } from "../../api";
 import { apiGetOrderList } from "../../api/apilist"; //订单列表 数据
-// import excel from "../../utils/excel";
 import Pagination from "../../components/Pagination";
-// import Hints from '../../components/Hints'
+import mixSearch from "../../components/mixSearch";
 
 export default {
   name: "Table",
-  components: { Pagination },
+  components: { Pagination,mixSearch },
   data() {
     return {
-      //快捷选择时间
-      pickerOptions: {
-        shortcuts: [
-          {
-            text: "最近一周",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit("pick", [start, end]);
-            }
-          },
-          {
-            text: "最近一个月",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              picker.$emit("pick", [start, end]);
-            }
-          },
-          {
-            text: "最近三个月",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-              picker.$emit("pick", [start, end]);
-            }
-          }
-        ]
-      },
       // 数据列表加载动画
       listLoading: true,
       // 查询列表参数对象
-      orderListForm: {
-        orderNo : null, //订单号
-        channel: null, //来源渠道 ,
-        customerName: null, //姓名 ,
-        remark: null, //备注 ,
-        orderState: null, //'订单状态'
-        customerPhone: null, //手机号
-        userPhone: null, //经理手机号
-        startTime:null,//开始时间
-        endTime:null
+      listQuery: {
+        // orderNo : null, //订单号
+        // channel: null, //来源渠道 ,
+        // customerName: null, //姓名 ,
+        // remark: null, //备注 ,
+        // orderState: null, //'订单状态'
+        // customerPhone: null, //手机号
+        // userPhone: null, //经理手机号
+        // startTime:null,//开始时间
+        // endTime:null
       },
+      searchFields: [
+        { span: 2, prop: 'customerName', name: '姓名', placeholder: '请输入' },
+        {span: 2, prop: 'customerPhone', name:'手机号', placeholder: '请输入',minlength:"11", maxlength:"11"},
+        {span: 2, prop: 'channel', name:'来源渠道', placeholder: '请输入'},
+        {span: 2, prop: 'userPhone', name:'经理手机号', placeholder: '请输入',minlength:"11", maxlength:"11"},
+        { span: 2, prop: 'orderState', name: '订单状态', placeholder: '请选择', type: 'select',
+           options: [
+                    { label: '全部', value: null},
+                    { label: '待抢', value: 0 },
+                    { label: '已抢', value: 1 },
+                    { label: '弃置', value: 2 },
+                    { label: '已放款', value: 3 },
+                    { label: '半价退单', value: 4 },
+                    { label: '全款退单', value: 5 },
+                    { label: '待审核', value: 6 },
+                    { label: '拒绝退单', value: 7 }
+                    ]
+        },
+        {span: 6, type: 'pickerOptionsPicker', name:'申请时间', placeholder: '申请时间',prop:'dateTime'},
+        {
+          span: 2,
+          type: 'reset',
+          style:'warning',
+          class:'resetName',
+          label: '重置',
+          options: [
+            { label: '搜索', type: 'primary', click: this.onSubmit }
+          ],
+        },
+      ],
       showDetail: true, //是否查看详情
-      dateTime:null,//日期范围
-      pageIndex: 1, //页码 ,
-      pageSize: 10, //每页数据
+      page:{
+        pageIndex: 1, //页码 ,
+        pageSize: 10, //每页数据量大小 ,
+      },
       // 数据总条数
       total: 0,
       // 表格数据数组
@@ -455,41 +388,13 @@ export default {
       multipleSelection: [],
       // 新增/编辑 弹出框显示/隐藏
       formVisible: false,
-      // 表单校验 trigger: ['blur', 'change'] 为多个事件触发
-      // formRules: {
-      //   channelOrderNo: [{ required: true, message: "请输入姓名", trigger: "blur" },
-      //     {
-      //       pattern: /^1[3456789]\d{9}$/,
-      //       message: "请输入正确的手机号",
-      //       trigger: "blur"
-      //     }
-      //   ],
-      //   phone: [
-      //     { required: true, message: "请输入手机号", trigger: "blur" },
-      //     {
-      //       pattern: /^1[3456789]\d{9}$/,
-      //       message: "请输入正确的手机号",
-      //       trigger: "blur"
-      //     }
-      //   ]
-      // },
-      // 防止多次连续提交表单
-      isSubmit: false,
-      // 导入数据 弹出框显示/隐藏
-      importVisible: false,
+      // 防止多次连续提交表
     };
   },
   created() {
-    // this.fetchData();
     this.PostFetchData();
   },
   methods: {
-    //下拉框事件
-    change(val) {
-      // console.log(val);
-      this.orderListForm.orderState = val;//订单状态
-      // this.orderListForm.pageIndex = 0;
-    },
     viewInfo(data) {
       console.log(data);
       this.showDetail = false;
@@ -498,13 +403,11 @@ export default {
     },
     PostFetchData() {
       this.listLoading = true;
-      // 获取审核数据列表接口
-      let data = this.orderListForm;
-      data['pageIndex'] = this.pageIndex;
-      data['pageSize'] = this.pageSize;
-      // if (data.dateTime ){
-      //   delete data.dateTime
-      // }
+      let { pageIndex,pageSize } = this.page;
+      let searchData = Object.assign({}, this.listQuery);
+      this.upDateTime(searchData.createMap,'startTime', 'endTime','dateTime',searchData);
+      let data = { ...searchData,pageIndex,pageSize}
+      // return
       apiGetOrderList(data)
         .then(res => {
           if (res.code === 200) {
@@ -517,31 +420,21 @@ export default {
           this.listLoading = false;
         });
     },
-    upDate(val) {
-      //时间选择
-      if(val){
-        this.orderListForm.startTime = val[0]
-        this.orderListForm.endTime = val[1]
-      }else{
-        this.orderListForm.startTime = null;
-        this.orderListForm.endTime = null;
-      }
-      console.log(val);
-    },
     // 查询数据
     onSubmit() {
-      this.pageIndex = 1;
+      this.page.pageIndex = 1;
       this.PostFetchData();
     },
     //重置数据
     onReset() {
       let that = this
-      Object.keys(that.orderListForm).forEach(key=>{
-        that.orderListForm[key]=null
+      Object.keys(that.listQuery).forEach(key=>{
+        that.listQuery[key]=null
         })
-      console.log(this.orderListForm)
-      this.dateTime = null;
-      this.PostFetchData();
+      that.onSubmit();
+      // console.log(this.orderListForm)
+      // this.dateTime = null;
+      // this.PostFetchData();
     },
   }
 };

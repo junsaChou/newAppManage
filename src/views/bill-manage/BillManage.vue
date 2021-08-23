@@ -2,45 +2,7 @@
   <div class="table-classic-wrapper">
     <el-card shadow="always" >
       <!-- 查询栏 -->
-      <el-form
-        ref="searchForm"
-        :inline="true"
-        :model="listQuery"
-        label-width="90px"
-        class="search-form"
-      >
-        <el-form-item label="时间">
-          <el-date-picker
-            v-model="createMap"
-            type="datetimerange"
-            :picker-options="pickerOptions"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            align="right"
-            @change="changePicker"
-          ></el-date-picker>
-        </el-form-item>
-        <el-form-item label="交易账号">
-          <el-input v-model="listQuery.account " placeholder="请填写" />
-        </el-form-item>
-        <el-form-item label="交易类型">
-          <el-select v-model="listQuery.payType ">
-            <el-option value label="全部" />
-            <el-option :value="1" label="消费" />
-            <el-option :value="2" label="充值" />
-            <el-option :value="3" label="退单" />
-            <el-option :value="4" label="活动" />
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="onSubmit">搜索</el-button>
-          <el-button type="warning" @click="onReset">重置</el-button>
-           <el-button type="success" @click="exportList">导出</el-button>
-        </el-form-item>
-      </el-form>
-      <!-- 操作栏 -->
+      <mixSearch  v-model="listQuery"  :fields="searchFields" ref="form"  @reset="onReset"/>
       <!-- 表格栏 -->
       <el-table
         ref="multipleTable"
@@ -75,8 +37,8 @@
       <!-- 分页栏 -->
       <Pagination
         :total="total"
-        :page.sync="listQuery.pageIndex"
-        :limit.sync="listQuery.pageSize"
+        :page.sync="page.pageIndex"
+        :limit.sync="page.pageSize"
         @pagination="PostFetchData"
       />
       <!-- 新增/编辑 弹出栏 -->
@@ -93,49 +55,50 @@ import {
 // import excel from "../../utils/excel";
 import Pagination from "../../components/Pagination";
 import { excelList } from "../../assets/js/validate";//导出 excel 方法
-// import Hints from '../../components/Hints'
+import mixSearch from "../../components/mixSearch";
 export default {
   name: "Table",
-  components: { Pagination },
+  components: { Pagination,mixSearch },
   data() {
     return {
-        //快捷选择时间
-       pickerOptions: {
-         // 设置不能选择的日期
-        onPick: ({ maxDate, minDate }) => {
-            this.choiceDate0 = minDate.getTime();
-            if (maxDate) {
-                this.choiceDate0 = '';
-            }
-        },
-        disabledDate:
-            (time) => {
-                let choiceDateTime = new Date(this.choiceDate0).getTime();
-                const minTime = new Date(choiceDateTime).setMonth(new Date(choiceDateTime).getMonth() - 1);
-                const maxTime = new Date(choiceDateTime).setMonth(new Date(choiceDateTime).getMonth() + 1);
-                const min = minTime;
-                const newDate = new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1;
-                const max = newDate < maxTime ? newDate : maxTime;
-            //如果已经选中一个日期 则 返回 该日期前后一个月时间可选
-                if (this.choiceDate0) {
-                    return time.getTime() < min || time.getTime() > max;
-                }
-            //若一个日期也没选中 则 返回 当前日期以前日期可选
-                return time.getTime() > newDate;
-            }
-      },
-      // 数据列表加载动画
       listLoading: true,
       // 查询列表参数对象
       listQuery: {
-        payType :null,//交易类型 记录类型 1 充值 2消费 ,
-        account:null,//优惠券标题
-        startTime : null,//创建时间
-        endTime  : null,//结束时间
+        // payType :null,//交易类型 记录类型 1 充值 2消费 ,
+        // account:null,//优惠券标题
+        // startTime : null,//创建时间
+        // endTime  : null,//结束时间
+        // pageIndex: 1, //页码 ,
+        // pageSize: 10 //每页数据量大小 ,
+      },
+      page:{
         pageIndex: 1, //页码 ,
         pageSize: 10 //每页数据量大小 ,
       },
-      createMap:null,//创建日期map
+      searchFields: [
+        { span: 6, type: 'pickerOptionsOld', name:'时间', placeholder: '时间', prop: 'dateTime'},
+        { span: 2, prop: 'account', name: '交易账号', placeholder: '请填写' },
+        { span: 2, prop: 'payType', name: '交易类型', placeholder: '请选择', type: 'select',
+           options: [
+                    { label: '全部', value: null },
+                    { label: '消费', value: 1 },
+                    { label: '充值', value: 2 },
+                    { label: '退单', value: 3 },
+                    { label: '活动', value: 4 }
+                    ]
+        },
+        {
+          span: 2,
+          type: 'reset',
+          style:'primary',
+          class:'resetName',
+          label: '重置',
+          options: [
+            { label: '搜索', type: 'warning', click: this.onSubmit },
+            { label: '导出', type: 'success', click: this.exportList },
+          ],
+        },
+      ],
       // 新增/编辑提交表单对象
       // 数据总条数
       total: 0,
@@ -149,7 +112,6 @@ export default {
       // 防止多次连续提交表单
       isSubmit: false,
       // 导入数据 弹出框显示/隐藏
-      importVisible: false
       //是否出现审核图片
     };
   },
@@ -181,8 +143,11 @@ export default {
     PostFetchData() {
       this.listLoading = true;
       // 获取审核数据列表接口
-      let data = this.listQuery;
-      // delete data.dateTime;
+      let { pageIndex,pageSize } = this.page;
+      // 获取审核数据列表接口
+      let searchData = Object.assign({}, this.listQuery);
+      this.upDateTime(searchData.dateTime,'startTime', 'endTime','dateTime',searchData);
+      let data = { ...searchData,pageIndex,pageSize }
       apiGetPayRecordList(data)
         .then(res => {
           console.log(res);
@@ -197,20 +162,9 @@ export default {
           this.listLoading = false;
         });
     },
-    changePicker(val) {
-      //时间选择
-      if (val) {
-        this.listQuery.startTime = val[0];
-        this.listQuery.endTime = val[1];
-      } else {
-        this.listQuery.startTime = null;
-        this.listQuery.endTime = null;
-      }
-      console.log(val);
-    },
     // 查询数据
     onSubmit() {
-      this.listQuery.pageIndex = 1;
+      this.page.pageIndex = 1;
       this.PostFetchData();
     },
     //重置数据
@@ -219,10 +173,11 @@ export default {
       Object.keys(that.listQuery).forEach(key => {
         that.listQuery[key] = null;
       });
-      this.createMap = null;
-      this.listQuery.pageIndex = 1;
-      this.listQuery.pageSize = 10;
-      this.PostFetchData();
+      that.onSubmit();
+      // this.createMap = null;
+      // this.listQuery.pageIndex = 1;
+      // this.listQuery.pageSize = 10;
+      // this.PostFetchData();
       // this.$refs["searchForm"].resetFields(); //清空表单
     }
   }

@@ -2,48 +2,7 @@
   <div class="table-classic-wrapper">
     <el-card shadow="always" >
       <!-- 查询栏 -->
-      <el-form
-        ref="searchForm"
-        :inline="true"
-        :model="listQuery"
-        label-width="90px"
-        class="search-form"
-      >
-        <el-form-item label="链接">
-          <el-input v-model="listQuery.oldLink" placeholder="请填写" />
-        </el-form-item>
-        <el-form-item label="时间">
-          <el-date-picker
-            v-model="createMap"
-            type="datetimerange"
-            :picker-options="pickerOptions"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            align="right"
-            @change="changePicker"
-          ></el-date-picker>
-        </el-form-item>
-        <el-form-item label="跟进人">
-          <el-input v-model="listQuery.adminName" placeholder="请填写" />
-        </el-form-item>
-        <el-form-item label="结算方式">
-          <el-select v-model="listQuery.clearingForm">
-            <el-option value label="全部" />
-            <el-option :value="0" label="UV" />
-            <el-option :value="1" label="CPA" />
-            <el-option :value="2" label="CPM" />
-            <el-option :value="3" label="CPD" />
-            <el-option :value="4" label="CPS" />
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="onSubmit">搜索</el-button>
-          <el-button type="warning" @click="onReset">重置</el-button>
-           <el-button type="success" @click="exportList">导出</el-button>
-        </el-form-item>
-      </el-form>
+      <mixSearch  v-model="listQuery"  :fields="searchFields" ref="form"  @reset="onReset"/>
       <!-- 操作栏 -->
       <div class="control-btns">
         <el-button type="primary" @click="handleCreate">创建链接</el-button>
@@ -154,8 +113,8 @@
       <!-- 分页栏 -->
       <Pagination
         :total="total"
-        :page.sync="listQuery.pageIndex"
-        :limit.sync="listQuery.pageSize"
+        :page.sync="page.pageIndex"
+        :limit.sync="page.pageSize"
         @pagination="PostFetchData"
       />
       <!-- 新增/编辑 弹出栏 -->
@@ -173,51 +132,55 @@ import {
 import validatorForm from "../../assets/js/validatorForm";
 import { excelList } from "../../assets/js/validate"
 import Pagination from "../../components/Pagination";
-// import Hints from '../../components/Hints'
+import mixSearch from "../../components/mixSearch";
 export default {
   name: "Table",
-  components: { Pagination },
+  components: { Pagination,mixSearch },
   data() {
     return {
-        //快捷选择时间
-      pickerOptions: {
-         // 设置不能选择的日期
-        onPick: ({ maxDate, minDate }) => {
-            this.choiceDate0 = minDate.getTime();
-            if (maxDate) {
-                this.choiceDate0 = '';
-            }
-        },
-        disabledDate:
-            (time) => {
-                let choiceDateTime = new Date(this.choiceDate0).getTime();
-                const minTime = new Date(choiceDateTime).setMonth(new Date(choiceDateTime).getMonth() - 1);
-                const maxTime = new Date(choiceDateTime).setMonth(new Date(choiceDateTime).getMonth() + 1);
-                const min = minTime;
-                const newDate = new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1;
-                const max = newDate < maxTime ? newDate : maxTime;
-            //如果已经选中一个日期 则 返回 该日期前后一个月时间可选
-                if (this.choiceDate0) {
-                    return time.getTime() < min || time.getTime() > max;
-                }
-            //若一个日期也没选中 则 返回 当前日期以前日期可选
-                return time.getTime() > newDate;
-            }
-      },
       // 数据列表加载动画
       listLoading: true,
       // 查询列表参数对象
       listQuery: {
-        clearingForm  :null,//结算方式 UV 记录类型 1 充值 2消费 ,
-        linkName :null,//链接名称
-        oldLink: null, //原始链接名称：
-        adminName :null,//跟进人
-        startTime : null,//创建时间
-        endTime  : null,//结束时间
+        // clearingForm  :null,//结算方式 UV 记录类型 1 充值 2消费 ,
+        // linkName :null,//链接名称
+        // oldLink: null, //原始链接名称：
+        // adminName :null,//跟进人
+        // startTime : null,//创建时间
+        // endTime  : null,//结束时间
+        // pageIndex: 1, //页码 ,
+        // pageSize: 10 //每页数据量大小 ,
+      },
+      searchFields: [
+        { span: 2, prop: 'oldLink', name: '链接', placeholder: '请填写' },
+        { span: 6, type: 'pickerOptionsOld', name:'时间', placeholder: '时间', prop: 'dateTime'},
+        { span: 2, prop: 'adminName', name: '跟进人', placeholder: '请填写' },
+        { span: 2, prop: 'clearingForm', name: '结算方式', placeholder: '请选择', type: 'select',
+           options: [
+                    { label: '全部', value: null },
+                    { label: 'UV', value: 0 },
+                    { label: 'CPA', value: 1 },
+                    { label: 'CPM', value: 2 },
+                    { label: 'CPD', value: 3 },
+                    { label: 'CPS', value: 4 }
+                    ]
+        },
+        {
+          span: 2,
+          type: 'reset',
+          style:'primary',
+          class:'resetName',
+          label: '重置',
+          options: [
+            { label: '搜索', type: 'warning', click: this.onSubmit },
+            { label: '导出', type: 'success', click: this.exportList },
+          ],
+        },
+      ],
+      page:{
         pageIndex: 1, //页码 ,
         pageSize: 10 //每页数据量大小 ,
       },
-      createMap:null,//创建日期map
       // 新增/编辑提交表单对象
       // 数据总条数
       total: 0,
@@ -291,14 +254,8 @@ export default {
       this.formVisibleList.isCreate = true;
     },
     stateChange(row) {
-      //动态切换状态
-      // let data = {};
       let  { id,state } = row;
-      // data["id"] = row.id; //id
-      // data["userState"] = row.state; //当前的状态
       let data = {id,state };
-      console.log(data);
-      // return false;
       this.apiInsertLinksClick(data)
     },
     apiInsertLinksClick(data){//
@@ -384,7 +341,6 @@ export default {
           // return false;
           let data = this.dialogForm;
           if (isCreate) {
-            console.log(data);
             data["id"] = null;
             apiInsertLinks(data) //创建
               .then(res => {
@@ -425,8 +381,6 @@ export default {
     //渠道导出
     exportList(){
       let data = Object.assign({}, this.listQuery)
-      delete data.pageSize;
-      delete data.pageIndex;
       apiChannellinksExport(data) 
        .then(res => {
           console.log(res);
@@ -446,9 +400,11 @@ export default {
     // 获取数据列表
     PostFetchData() {
       this.listLoading = true;
+      let { pageIndex,pageSize } = this.page;
       // 获取审核数据列表接口
-      let data = this.listQuery;
-      // delete data.dateTime;
+      let searchData = Object.assign({}, this.listQuery);
+      this.upDateTime(searchData.dateTime,'startTime', 'endTime','dateTime',searchData);
+      let data = { ...searchData,pageIndex,pageSize }
       apiLinksList(data)
         .then(res => {
           console.log(res);
@@ -463,20 +419,9 @@ export default {
           this.listLoading = false;
         });
     },
-    changePicker(val) {
-      //时间选择
-      if (val) {
-        this.listQuery.startTime = val[0];
-        this.listQuery.endTime = val[1];
-      } else {
-        this.listQuery.startTime = null;
-        this.listQuery.endTime = null;
-      }
-      console.log(val);
-    },
     // 查询数据
     onSubmit() {
-      this.listQuery.pageIndex = 1;
+      this.page.pageIndex = 1;
       this.PostFetchData();
     },
     //重置数据
@@ -485,15 +430,8 @@ export default {
       Object.keys(that.listQuery).forEach(key => {
         that.listQuery[key] = null;
       });
-      this.createMap = null;
-      this.listQuery.pageIndex = 1;
-      this.listQuery.pageSize = 10;
-      this.PostFetchData();
-      // this.$refs["searchForm"].resetFields(); //清空表单
+      that.onSubmit();
     },
-    views(index,row){
-
-    }
   }
 };
 </script>

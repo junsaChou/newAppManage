@@ -307,7 +307,6 @@ export default {
       // 防止多次连续提交表单
       isSubmit: false,
       // 导入数据 弹出框显示/隐藏
-      importVisible: false
       //是否出现审核图片
     };
   },
@@ -605,10 +604,6 @@ export default {
       console.log("hh");
       this.isAbc = true;
     },
-    changePicker(val) {
-      //点击确定时间
-      console.log(val);
-    }
   }
 };
 </script>

@@ -1,30 +1,6 @@
 <template>
   <div class="home-wrapper">
-      <el-form
-        ref="searchForm"
-        :inline="true"
-        :model="listQuery" 
-        label-width="100px"
-        class="search-form"
-      >
-      <el-form-item label="时间">
-          <el-date-picker
-            v-model="createMap"
-            type="datetimerange"
-            :picker-options="pickerOptions"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            align="right"
-            @change="changePicker"
-          ></el-date-picker>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="onSubmit">搜索</el-button>
-          <el-button type="warning" @click="onReset">重置</el-button>
-        </el-form-item>
-      </el-form>
+    <mixSearch  v-model="listQuery"  :fields="searchFields" ref="form"  @reset="onReset"/>
     <div class="date-row">
     
       <div v-for="(item, index) in cardInfoData" :key="index" class="data-col">
@@ -50,17 +26,6 @@
           <ChartsPie title="抢单总消费" type="ring" :data="chartsPieData.slice(2,4)" class="data-desc" />
         </el-card>
       </el-col>
-      <!-- <el-col :span="8">
-        <el-card shadow="always" :body-style="{padding: '0px'}">
-          <div class="data-desc data-lang-box">
-            <div class="data-lang-title">项目语言构成</div>
-            <div v-for="(item, index) in langsData" :key="index" class="data-lang-item">
-              <label>{{ item.name }}</label>
-              <el-progress :percentage="item.value" :stroke-width="16" :color="item.color" />
-            </div>
-          </div>
-        </el-card>
-      </el-col> -->
       <el-col :span="8">
         <el-card shadow="always" :body-style="{padding: '0px'}">
           <ChartsPie title="充值账户总数" type="pie" :data="chartsPieData.slice(4,6)" class="data-desc" />
@@ -89,9 +54,10 @@ import ChartsBar from '../components/Charts/ChartsBar'
 import ChartsLine from '../components/Charts/ChartsLine'
 // 账单图表
 import { apiGetBillCount } from "../api/apilist";
+import mixSearch from "../components/mixSearch";
 export default {
   name: 'Home',
-  components: { CountTo, ChartsPie, ChartsBar, ChartsLine },
+  components: { CountTo, ChartsPie, ChartsBar, ChartsLine,mixSearch },
   data() {
     return {
       text: '',
@@ -136,34 +102,22 @@ export default {
       echartsList:[
       ],
       listQuery: {
-        startTime : null,//创建时间
-        endTime  : null//结束时间
+        // startTime : null,//创建时间
+        // endTime  : null//结束时间
       },
-      createMap:null,//创建日期map
-      pickerOptions: {
-         // 设置不能选择的日期
-        onPick: ({ maxDate, minDate }) => {
-            this.choiceDate0 = minDate.getTime();
-            if (maxDate) {
-                this.choiceDate0 = '';
-            }
+      searchFields: [
+        { span: 6, type: 'pickerOptionsOld', name:'时间', placeholder: '时间', prop: 'dateTime'},
+        {
+          span: 2,
+          type: 'reset',
+          style:'primary',
+          class:'resetName',
+          label: '重置',
+          options: [
+            { label: '搜索', type: 'warning', click: this.onSubmit }
+          ],
         },
-        disabledDate:
-            (time) => {
-                let choiceDateTime = new Date(this.choiceDate0).getTime();
-                const minTime = new Date(choiceDateTime).setMonth(new Date(choiceDateTime).getMonth() - 1);
-                const maxTime = new Date(choiceDateTime).setMonth(new Date(choiceDateTime).getMonth() + 1);
-                const min = minTime;
-                const newDate = new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1;
-                const max = newDate < maxTime ? newDate : maxTime;
-            //如果已经选中一个日期 则 返回 该日期前后一个月时间可选
-                if (this.choiceDate0) {
-                    return time.getTime() < min || time.getTime() > max;
-                }
-            //若一个日期也没选中 则 返回 当前日期以前日期可选
-                return time.getTime() > newDate;
-            }
-      },
+      ],
     }
   },
   mounted(){
@@ -182,24 +136,16 @@ export default {
       Object.keys(that.listQuery).forEach(key => {
         that.listQuery[key] = null;
       });
-      this.createMap = null;
-      this.PostFetchData();
+      that.onSubmit();
       // this.$refs["searchForm"].resetFields(); //清空表单
-    },
-    changePicker(val) {
-      //时间选择
-      if (val) {
-        this.listQuery.startTime = val[0];
-        this.listQuery.endTime = val[1];
-      } else {
-        this.listQuery.startTime = null;
-        this.listQuery.endTime = null;
-      }
     },
      // 获取数据列表
     PostFetchData() {
       // 获取审核数据列表接口
-      let data = this.listQuery;
+      // let data = this.listQuery;
+      let searchData = Object.assign({}, this.listQuery);
+      this.upDateTime(searchData.dateTime,'startTime', 'endTime','dateTime',searchData);
+      let data = { ...searchData }
       // delete data.dateTime;
       apiGetBillCount(data)
         .then(res => {

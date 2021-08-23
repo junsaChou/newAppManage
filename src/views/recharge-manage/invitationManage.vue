@@ -2,44 +2,7 @@
   <div class="table-classic-wrapper">
     <el-card >
       <!-- 查询栏 -->
-      <el-form
-        ref="searchForm"
-        :inline="true"
-        :model="listQuery" 
-        label-width="100px"
-        class="search-form"
-      >
-      <el-form-item label="时间">
-          <el-date-picker
-            v-model="createMap"
-            type="datetimerange"
-            :picker-options="pickerOptions"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            align="right"
-            @change="changePicker"
-          ></el-date-picker>
-        </el-form-item>
-        <el-form-item label="手机号">
-          <el-input   v-model="listQuery.phone" placeholder="请输入邀请人/被邀请人" />
-        </el-form-item>
-        <el-form-item label="邀请进度">
-          <el-select v-model="listQuery.authState " placeholder="请选择">
-            <el-option value label="全部" />
-            <el-option :value="1" label="注册" />
-            <el-option :value="2" label="认证" />
-            <el-option :value="3" label="充值" />
-            
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="onSubmit">搜索</el-button>
-          <el-button type="warning" @click="onReset">重置</el-button>
-          <el-button type="success" @click="exportList">导出</el-button>
-        </el-form-item>
-      </el-form>
+      <mixSearch  v-model="listQuery"  :fields="searchFields" ref="form"  @reset="onReset"/>
       <div class="control-btns">
         <div>
           <span class="left">邀请注册总人数:</span>
@@ -107,8 +70,8 @@
       <!-- 分页栏 -->
       <Pagination
         :total="total"
-        :page.sync="listQuery.pageIndex"
-        :limit.sync="listQuery.pageSize"
+        :page.sync="page.pageIndex"
+        :limit.sync="page.pageSize"
         @pagination="PostFetchData"
       />
     </el-card>
@@ -122,56 +85,56 @@ import {
 } from "../../api/apilist";
 import { excelList } from "../../assets/js/validate"
 import Pagination from "../../components/Pagination";
-// import Hints from '../../components/Hints'
+import mixSearch from "../../components/mixSearch";
 
 export default {
   name: "Table",
-  components: { Pagination},
+  components: { Pagination,mixSearch},
   data() {
     return {
       // 数据列表加载动画
       listLoading: true,
-             //快捷选择时间
-      pickerOptions: {
-         // 设置不能选择的日期
-        onPick: ({ maxDate, minDate }) => {
-            this.choiceDate0 = minDate.getTime();
-            if (maxDate) {
-                this.choiceDate0 = '';
-            }
-        },
-        disabledDate:
-            (time) => {
-                let choiceDateTime = new Date(this.choiceDate0).getTime();
-                const minTime = new Date(choiceDateTime).setMonth(new Date(choiceDateTime).getMonth() - 1);
-                const maxTime = new Date(choiceDateTime).setMonth(new Date(choiceDateTime).getMonth() + 1);
-                const min = minTime;
-                const newDate = new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1;
-                const max = newDate < maxTime ? newDate : maxTime;
-            //如果已经选中一个日期 则 返回 该日期前后一个月时间可选
-                if (this.choiceDate0) {
-                    return time.getTime() < min || time.getTime() > max;
-                }
-            //若一个日期也没选中 则 返回 当前日期以前日期可选
-                return time.getTime() > newDate;
-            }
-      },
       // 查询列表参数对象
       createMap:null,//创建日期map
       listQuery: {
-        phone: null, //手机号
-        authState: null, // 邀请进度
-        startTime : null,//创建时间
-        endTime  : null,//结束时间
-        pageIndex: 1, //页码 ,
-        pageSize: 10 //每页数据量大小 ,
+        // phone: null, //手机号
+        // authState: null, // 邀请进度
+        // startTime : null,//创建时间
+        // endTime  : null,//结束时间
+        // pageIndex: 1, //页码 ,
+        // pageSize: 10 //每页数据量大小 ,
       },
+      page:{
+        pageIndex: 1, //页码 ,
+        pageSize: 10 //每页数据量大小 
+      },
+      searchFields: [
+        { span: 6, type: 'pickerOptionsOld', name:'时间', placeholder: '时间', prop: 'dateTime',pickerOptions: this.pickerOptions},
+        { span: 2, prop: 'phone', name: '手机号', placeholder: '请填写' },
+        { span: 2, prop: 'authState', name: '邀请进度', placeholder: '请选择', type: 'select',
+           options: [
+                    { label: '全部', value: null },
+                    { label: '注册', value: 1 },
+                    { label: '认证', value: 2 },
+                    { label: '充值', value: 3 }
+                    ]
+        },
+        {
+          span: 2,
+          type: 'reset',
+          style:'primary',
+          class:'resetName',
+          label: '重置',
+          options: [
+            { label: '搜索', type: 'warning', click: this.onSubmit },
+            { label: '导出', type: 'success', click: this.exportList },
+          ],
+        },
+      ],
       extendsMap:{},//总积分数值
       // 数据总条数
       total: 0,
       // 表格数据数组
-      pageIndex: 1, //页码 ,
-      pageSize: 10, //每页数据量大小 ,
       tableData: [],
       // 新增/编辑 弹出框显示/隐藏
     };
@@ -183,8 +146,6 @@ export default {
         //渠道导出
     exportList(){
       let data = Object.assign({}, this.listQuery)
-      delete data.pageSize;
-      delete data.pageIndex;
       apiInvitationListExport(data) 
        .then(res => {
           excelList(res,'邀请管理')
@@ -200,26 +161,18 @@ export default {
           this.listLoading = false;
         });
     },
-    changePicker(val) {
-      //时间选择
-      if (val) {
-        this.listQuery.startTime = val[0];
-        this.listQuery.endTime = val[1];
-      } else {
-        this.listQuery.startTime = null;
-        this.listQuery.endTime = null;
-      }
-      console.log(val);
-    },
     // 获取数据列表
     PostFetchData() {
       this.listLoading = true;
       // 获取审核数据列表接口
-      let data = this.listQuery;
-      // delete data.dateTime;
+      // let data = this.listQuery;
+      let { pageIndex,pageSize } = this.page;
+      // 获取审核数据列表接口
+      let searchData = Object.assign({}, this.listQuery);
+      this.upDateTime(searchData.dateTime,'startTime', 'endTime','dateTime',searchData);
+      let data = { ...searchData,pageIndex,pageSize }
       apiGetInvitationList(data)
         .then(res => {
-          console.log(res);
           if (res.code === 200) {
             this.total = res.data.total;
             this.tableData = res.data.list;
@@ -234,7 +187,7 @@ export default {
     },
     // 查询数据
     onSubmit() {
-      this.listQuery.pageIndex = 1;
+      this.page.pageIndex = 1;
       this.PostFetchData();
     },
     //重置数据
@@ -243,11 +196,7 @@ export default {
       Object.keys(that.listQuery).forEach(key => {
         that.listQuery[key] = null;
       });
-      this.createMap = null;
-      // this.listQuery.authState = 1;
-      this.listQuery.pageIndex = 1;
-      this.listQuery.pageSize = 10;
-      this.PostFetchData();
+      this.onSubmit();
       // this.$refs["searchForm"].resetFields(); //清空表单
     },
   }

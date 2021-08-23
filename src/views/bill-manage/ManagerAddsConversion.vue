@@ -2,35 +2,7 @@
   <div class="table-classic-wrapper">
     <el-card shadow="always">
       <!-- 查询栏 -->
-      <el-form
-        ref="searchForm"
-        :inline="true"
-        :model="listQuery"
-        label-width="90px"
-        class="search-form"
-      >
-        <el-form-item label="时间">
-          <el-date-picker
-            v-model="createMap"
-            type="datetimerange"
-            :picker-options="pickerOptions"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            align="right"
-            @change="changePicker"
-          ></el-date-picker>
-        </el-form-item>
-        <el-form-item label="渠道">
-          <el-input v-model="listQuery.channel" placeholder="请填写" />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="onSubmit">搜索</el-button>
-          <el-button type="warning" @click="onReset">重置</el-button>
-          <el-button type="success" @click="exportList">导出</el-button>
-        </el-form-item>
-      </el-form>
+      <mixSearch  v-model="listQuery"  :fields="searchFields" ref="form"  @reset="onReset"/>
       <!-- 操作栏 -->
       <!-- 表格栏 -->
       <el-table
@@ -74,8 +46,8 @@
       <!-- 分页栏 -->
       <Pagination
         :total="total"
-        :page.sync="listQuery.pageIndex"
-        :limit.sync="listQuery.pageSize"
+        :page.sync="page.pageIndex"
+        :limit.sync="page.pageSize"
         @pagination="PostFetchData"
       />
       <!-- 新增/编辑 弹出栏 -->
@@ -92,63 +64,48 @@ import {
 // import excel from "../../utils/excel";
 import Pagination from "../../components/Pagination";
 import { excelList } from "../../assets/js/validate";//导出 excel 方法
-// import Hints from '../../components/Hints'
+import mixSearch from "../../components/mixSearch";
 
 export default {
   name: "ManagerAddsConversion",
-  components: { Pagination },
+  components: { Pagination,mixSearch },
   data() {
     return {
-        //快捷选择时间
-     pickerOptions: {
-         // 设置不能选择的日期
-        onPick: ({ maxDate, minDate }) => {
-            this.choiceDate0 = minDate.getTime();
-            if (maxDate) {
-                this.choiceDate0 = '';
-            }
-        },
-        disabledDate:
-            (time) => {
-                let choiceDateTime = new Date(this.choiceDate0).getTime();
-                const minTime = new Date(choiceDateTime).setMonth(new Date(choiceDateTime).getMonth() - 1);
-                const maxTime = new Date(choiceDateTime).setMonth(new Date(choiceDateTime).getMonth() + 1);
-                const min = minTime;
-                const newDate = new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1;
-                const max = newDate < maxTime ? newDate : maxTime;
-            //如果已经选中一个日期 则 返回 该日期前后一个月时间可选
-                if (this.choiceDate0) {
-                    return time.getTime() < min || time.getTime() > max;
-                }
-            //若一个日期也没选中 则 返回 当前日期以前日期可选
-                return time.getTime() > newDate;
-            }
-      },
       // 数据列表加载动画
       listLoading: true,
       // 查询列表参数对象
       listQuery: {
-        startTime : null,//创建时间
-        endTime  : null,//结束时间
-        channel: null, //发放人
+        // startTime : null,//创建时间
+        // endTime  : null,//结束时间
+        // channel: null, //发放人
+        // pageIndex: 1, //页码 ,
+        // pageSize: 10, //每页数据量大小 ,
+      },
+      page:{
         pageIndex: 1, //页码 ,
         pageSize: 10, //每页数据量大小 ,
       },
-      createMap:null,//创建日期map
+      searchFields: [
+        { span: 6, type: 'pickerOptionsOld', name:'时间', placeholder: '时间', prop: 'dateTime'},
+        { span: 2, prop: 'channel', name: '渠道', placeholder: '请填写' },
+        {
+          span: 2,
+          type: 'reset',
+          style:'primary',
+          class:'resetName',
+          label: '重置',
+          options: [
+            { label: '搜索', type: 'warning', click: this.onSubmit },
+            { label: '导出', type: 'success', click: this.exportList },
+          ],
+        },
+      ],
       // 新增/编辑提交表单对象
       // 数据总条数
       total: 0,
       // 表格数据数组
 
       tableData: [],
-    
-      // 新增/编辑 弹出框显示/隐藏
-
-      // 表单校验 trigger: ['blur', 'change'] 为多个事件触发
-      // 防止多次连续提交表单
-      isSubmit: false,
-      // 导入数据 弹出框显示/隐藏
-      importVisible: false
       //是否出现审核图片
     };
   },
@@ -159,12 +116,13 @@ export default {
     // 获取数据列表
     PostFetchData() {
       this.listLoading = true;
+      let { pageIndex,pageSize } = this.page;
       // 获取审核数据列表接口
-      let data = this.listQuery;
-      // delete data.dateTime;
+      let searchData = Object.assign({}, this.listQuery);
+      this.upDateTime(searchData.dateTime,'startTime', 'endTime','dateTime',searchData);
+      let data = { ...searchData,pageIndex,pageSize }
       apiUserConvertList(data)
         .then(res => {
-          console.log(res);
           if (res.code === 200) {
             this.total = res.data.total;
             this.tableData = res.data.list;
@@ -176,21 +134,9 @@ export default {
           this.listLoading = false;
         });
     },
-    changePicker() {
-      //时间选择
-      if (this.createMap != null) {
-        this.listQuery.startTime = this.createMap[0];
-        this.listQuery.endTime = this.createMap[1];
-      } else {
-        this.listQuery.startTime = null;
-        this.listQuery.endTime = null;
-      }
-    },
        //渠道导出
     exportList(){
       let data = Object.assign({}, this.listQuery)
-      delete data.pageSize;
-      delete data.pageIndex;
       apiUserConvertExport(data) 
        .then(res => {
           excelList(res,'经理新增转换列表');
@@ -208,7 +154,7 @@ export default {
     },
     // 查询数据
     onSubmit() {
-      this.listQuery.pageIndex = 1;
+      this.page.pageIndex = 1;
       this.PostFetchData();
     },
     //重置数据
@@ -217,10 +163,7 @@ export default {
       Object.keys(that.listQuery).forEach(key => {
         that.listQuery[key] = null;
       });
-      this.createMap = null;
-      this.listQuery.pageIndex = 1;
-      this.listQuery.pageSize = 10;
-      this.PostFetchData();
+      this.onSubmit();
       // this.$refs["searchForm"].resetFields(); //清空表单
     }
   }

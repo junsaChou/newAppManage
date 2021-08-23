@@ -2,35 +2,7 @@
   <div class="table-classic-wrapper">
     <el-card shadow="always" v-show="ChannelListForm.flag">
       <!-- 查询栏 -->
-      <el-form
-        ref="searchForm"
-        :inline="true"
-        :model="listQuery"
-        label-width="90px"
-        class="search-form"
-      >
-        <el-form-item label="渠道">
-          <el-input v-model="listQuery.channel " placeholder="请填写" />
-        </el-form-item>
-        <el-form-item label="时间">
-          <el-date-picker
-            v-model="createMap"
-            type="datetimerange"
-            :picker-options="pickerOptions"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            align="right"
-            @change="changePicker"
-          ></el-date-picker>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="onSubmit">搜索</el-button>
-          <el-button type="warning" @click="onReset">重置</el-button>
-           <el-button type="success" @click="exportList">导出</el-button>
-        </el-form-item>
-      </el-form>
+      <mixSearch  v-model="listQuery"  :fields="searchFields" ref="form"  @reset="onReset"/>
       <!-- 操作栏 -->
       <!-- 表格栏 -->
       <el-table
@@ -64,8 +36,8 @@
       <!-- 分页栏 -->
       <Pagination
         :total="total"
-        :page.sync="listQuery.pageIndex"
-        :limit.sync="listQuery.pageSize"
+        :page.sync="page.pageIndex"
+        :limit.sync="page.pageSize"
         @pagination="PostFetchData"
       />
       <!-- 新增/编辑 弹出栏 -->
@@ -85,96 +57,49 @@ import { excelList } from "../../assets/js/validate";//导出 excel 方法
 import Pagination from "../../components/Pagination";
 // import Hints from '../../components/Hints'
 import ChannelList from "../../components/Channel"; //优惠券组件
+import mixSearch from "../../components/mixSearch";
 export default {
   name: "Table",
-  components: { Pagination ,ChannelList},
+  components: { Pagination ,ChannelList,mixSearch},
   data() {
     return {
       ChannelListForm: { //充值奖励列表
         flag: true,
         id:null,
       },
-        //快捷选择时间
-      pickerOptions: {
-         // 设置不能选择的日期
-        onPick: ({ maxDate, minDate }) => {
-            this.choiceDate0 = minDate.getTime();
-            if (maxDate) {
-                this.choiceDate0 = '';
-            }
-        },
-        disabledDate:
-            (time) => {
-                let choiceDateTime = new Date(this.choiceDate0).getTime();
-                const minTime = new Date(choiceDateTime).setMonth(new Date(choiceDateTime).getMonth() - 1);
-                const maxTime = new Date(choiceDateTime).setMonth(new Date(choiceDateTime).getMonth() + 1);
-                const min = minTime;
-                const newDate = new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1;
-                const max = newDate < maxTime ? newDate : maxTime;
-            //如果已经选中一个日期 则 返回 该日期前后一个月时间可选
-                if (this.choiceDate0) {
-                    return time.getTime() < min || time.getTime() > max;
-                }
-            //若一个日期也没选中 则 返回 当前日期以前日期可选
-                return time.getTime() > newDate;
-            }
-
-        // }
-        // shortcuts: [
-        //   {
-        //     text: "最近一周",
-        //     onClick(picker) {
-        //       const end = new Date();
-        //       const start = new Date();
-        //       start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-        //       picker.$emit("pick", [start, end]);
-        //     }
-        //   },
-        //   {
-        //     text: "最近一个月",
-        //     onClick(picker) {
-        //       const end = new Date();
-        //       const start = new Date();
-        //       start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-        //       picker.$emit("pick", [start, end]);
-        //     }
-        //   },
-        //   {
-        //     text: "最近三个月",
-        //     onClick(picker) {
-        //       const end = new Date();
-        //       const start = new Date();
-        //       start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-        //       picker.$emit("pick", [start, end]);
-        //     }
-        //   }
-        // ]
-      },
       // 数据列表加载动画
       listLoading: true,
       // 查询列表参数对象
       listQuery: {
-        channel:null,//优惠券标题
-        startTime : null,//创建时间
-        endTime  : null,//结束时间
-        pageIndex: 1, //页码 ,
-        pageSize: 10 //每页数据量大小 ,
+        // channel:null,//优惠券标题
+        // startTime : null,//创建时间
+        // endTime  : null,//结束时间
+        // pageIndex: 1, //页码 ,
+        // pageSize: 10 //每页数据量大小 ,
       },
-      createMap:null,//创建日期map
-      // 新增/编辑提交表单对象
-      // 数据总条数
+      searchFields: [
+        { span: 2, prop: 'channel', name: '渠道', placeholder: '请填写' },
+        { span: 6, type: 'pickerOptionsOld', name:'时间', placeholder: '时间', prop: 'dateTime'},
+        {
+          span: 2,
+          type: 'reset',
+          style:'primary',
+          class:'resetName',
+          label: '重置',
+          options: [
+            { label: '搜索', type: 'warning', click: this.onSubmit },
+            { label: '导出', type: 'success', click: this.exportList },
+          ],
+        },
+      ],
+      page:{
+        pageIndex: 1, //页码 ,
+        pageSize: 10, //每页数据量大小 ,
+      },
       total: 0,
       // 表格数据数组
 
-      tableData: [],
-    
-      // 新增/编辑 弹出框显示/隐藏
-
-      // 表单校验 trigger: ['blur', 'change'] 为多个事件触发
-      // 防止多次连续提交表单
-      isSubmit: false,
-      // 导入数据 弹出框显示/隐藏
-      importVisible: false
+      tableData: []
       //是否出现审核图片
     };
   },
@@ -209,8 +134,11 @@ export default {
     PostFetchData() {
       this.listLoading = true;
       // 获取审核数据列表接口
-      let data = this.listQuery;
-      // delete data.dateTime;
+      let { pageIndex,pageSize } = this.page;
+      // 获取审核数据列表接口
+      let searchData = Object.assign({}, this.listQuery);
+      this.upDateTime(searchData.dateTime,'startTime', 'endTime','dateTime',searchData);
+      let data = { ...searchData,pageIndex,pageSize }
       apiSelectChannelData(data)
         .then(res => {
           console.log(res);
@@ -225,21 +153,9 @@ export default {
           this.listLoading = false;
         });
     },
-    changePicker(val) {
-      //时间选择
-      if (val) {
-        this.listQuery.startTime = val[0];
-        this.listQuery.endTime = val[1];
-      } else {
-        this.listQuery.startTime = null;
-        this.listQuery.endTime = null;
-      }
-      console.log(val);
-    },
     // 查询数据
     onSubmit() {
-      // this.listQuery.currentPage = 1;
-      this.listQuery.pageIndex = 1;
+      this.page.pageIndex = 1;
       this.PostFetchData();
     },
     //重置数据
@@ -248,11 +164,7 @@ export default {
       Object.keys(that.listQuery).forEach(key => {
         that.listQuery[key] = null;
       });
-      this.createMap = null;
-      this.listQuery.pageIndex = 1;
-      this.listQuery.pageSize = 10;
-      this.PostFetchData();
-      // this.$refs["searchForm"].resetFields(); //清空表单
+      that.onSubmit();
     },
     views(index, row) {
       this.ChannelListForm.flag = false;

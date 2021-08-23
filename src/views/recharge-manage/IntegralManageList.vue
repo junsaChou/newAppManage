@@ -2,7 +2,8 @@
   <div class="table-classic-wrapper">
     <el-card v-show="IntegraListForm.flag">
       <!-- 查询栏 -->
-      <el-form
+      <mixSearch  v-model="listQuery"  :fields="searchFields" ref="form"  @reset="onReset"/>
+      <!-- <el-form
         ref="searchForm"
         :inline="true"
         :model="listQuery" 
@@ -17,7 +18,7 @@
           <el-button type="warning" @click="onReset">重置</el-button>
           <el-button type="success" @click="exportList">导出</el-button>
         </el-form-item>
-      </el-form>
+      </el-form> -->
       <div class="control-btns">
         <div>
           <span class="left">签到获取总积分:</span>
@@ -65,8 +66,8 @@
       <!-- 分页栏 -->
       <Pagination
         :total="total"
-        :page.sync="pageIndex"
-        :limit.sync="pageSize"
+        :page.sync="page.pageIndex"
+        :limit.sync="page.pageSize"
         @pagination="PostFetchData"
       />
     </el-card>
@@ -83,11 +84,10 @@ import {
 import { excelList } from "../../assets/js/validate"
 import Pagination from "../../components/Pagination";
 import IntegraList from "../../components/Integral"; //优惠券组件
-// import Hints from '../../components/Hints'
-
+import mixSearch from "../../components/mixSearch";
 export default {
   name: "Table",
-  components: { Pagination, IntegraList},
+  components: { Pagination, IntegraList,mixSearch},
   data() {
     return {
       // 数据列表加载动画
@@ -98,14 +98,30 @@ export default {
       },
       // 查询列表参数对象
       listQuery: {
-        account: null,
+        // account: null,
       },
+      searchFields: [
+        { span: 2, prop: 'account', name: '登录账户', placeholder: '请填写' },
+        {
+          span: 2,
+          type: 'reset',
+          style:'primary',
+          class:'resetName',
+          label: '重置',
+          options: [
+            { label: '搜索', type: 'warning', click: this.onSubmit },
+            { label: '导出', type: 'success', click: this.exportList },
+          ],
+        },
+      ],
       extendsMap:{},//总积分数值
       // 数据总条数
       total: 0,
       // 表格数据数组
-      pageIndex: 1, //页码 ,
-      pageSize: 10, //每页数据量大小 ,
+      page:{
+        pageIndex: 1, //页码 ,
+        pageSize: 10, //每页数据量大小 ,
+      },
       tableData: [],
       // 新增/编辑 弹出框显示/隐藏
     };
@@ -140,12 +156,14 @@ export default {
     PostFetchData() {
       this.listLoading = true;
       // 获取审核数据列表接口
-      let data = this.listQuery;
+      // let data = this.listQuery;
       if(this.listQuery.account == ''){
         this.listQuery.account = null;
       }
-      data["pageIndex"] = this.pageIndex;
-      data["pageSize"] = this.pageSize;
+       let { pageIndex,pageSize } = this.page;
+      // 获取审核数据列表接口
+      let searchData = Object.assign({}, this.listQuery);
+      let data = { ...searchData,pageIndex,pageSize }
       // delete data.dateTime;
       apiGetUserIntegralList(data)
         .then(res => {
@@ -165,16 +183,13 @@ export default {
     // 查询数据
     onSubmit() {
       // this.listQuery.currentPage = 1;
-      this.pageIndex = 1;
+      this.page.pageIndex = 1;
       this.PostFetchData();
     },
     //重置数据
     onReset() {
-      this.pageIndex = 1;
-      this.pageSize = 10;
       this.listQuery.account = null;
-      // return false;
-      this.PostFetchData();
+      this.onSubmit();
       // this.$refs["searchForm"].resetFields(); //清空表单
     },
     //查看

@@ -2,44 +2,7 @@
   <div class="table-classic-wrapper">
     <el-card shadow="always">
       <!-- 查询栏 -->
-      <el-form
-        ref="searchForm"
-        :inline="true"
-        :model="listQuery"
-        label-width="90px"
-        class="search-form"
-      >
-        <el-form-item label="标题">
-          <el-input v-model="listQuery.title" placeholder="请填写" />
-        </el-form-item>
-        <el-form-item label="发布人">
-          <el-input v-model="listQuery.adminName" placeholder="请填写" />
-        </el-form-item>
-        <el-form-item label="发布时间">
-          <el-date-picker
-            v-model="dateTime"
-            type="datetimerange"
-            @change="upDate"
-            :picker-options="pickerOptions"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            align="right"
-          ></el-date-picker>
-        </el-form-item>
-        <el-form-item label="消息类型">
-          <el-select v-model="listQuery.newType  ">
-            <el-option value label="全部" />
-            <el-option :value="0" label="私聊消息" />
-            <el-option :value="1" label="系统消息 " />
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="onSubmit">搜索</el-button>
-          <el-button type="warning" @click="onReset">重置</el-button>
-        </el-form-item>
-      </el-form>
+      <mixSearch  v-model="listQuery"  :fields="searchFields" ref="form"  @reset="onReset"/>
       <!-- 操作栏 -->
       <div class="control-btns">
         <el-button type="primary" @click="handleCreate">发布消息</el-button>
@@ -99,8 +62,8 @@
       <!-- 分页栏 -->
       <Pagination
         :total="total"
-        :page.sync="listQuery.pageIndex"
-        :limit.sync="listQuery.pageSize"
+        :page.sync="page.pageIndex"
+        :limit.sync="page.pageSize"
         @pagination="PostFetchData"
       />
       <!-- 新增/编辑 弹出栏 -->
@@ -178,47 +141,14 @@ import {
 // import excel from "../../utils/excel";
 import Pagination from "../../components/Pagination";
 import { isMobile } from "@/assets/js/validate";
-// import Hints from '../../components/Hints'
+import mixSearch from "../../components/mixSearch";
 
 export default {
   name: "Table",
-  components: { Pagination },
+  components: { Pagination,mixSearch },
   data() {
     return {
-      //快捷选择时间
-      //快捷选择时间
-      pickerOptions: {
-        shortcuts: [
-          {
-            text: "最近一周",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit("pick", [start, end]);
-            }
-          },
-          {
-            text: "最近一个月",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              picker.$emit("pick", [start, end]);
-            }
-          },
-          {
-            text: "最近三个月",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-              picker.$emit("pick", [start, end]);
-            }
-          }
-        ]
-      },
-        //快捷选择时间
+        //快捷选择时间 dialog
       pickerOptionsDialog: {
         disabledDate(time) {
           return time.getTime() < Date.now() - 8.64e7; //如果没有后面的-8.64e7就是不可以选择今天的
@@ -228,13 +158,39 @@ export default {
       listLoading: true,
       // 查询列表参数对象
       listQuery: {
-        title: null, //标题
-        adminName: null, //发布人姓名
-        newType: null, // 消息类型
-        startTime: null, //开始时间
-        endTime: null, //结束时间
+        // title: null, //标题
+        // adminName: null, //发布人姓名
+        // newType: null, // 消息类型
+        // startTime: null, //开始时间
+        // endTime: null, //结束时间
+        // pageIndex: 1, //页码 ,
+        // pageSize: 10 //每页数据量大小 ,
+      },
+      searchFields: [
+        { span: 2, prop: 'title', name: '标题', placeholder: '请输入' },
+        {span: 2, prop: 'adminName', name:'发布人姓名', placeholder: '请输入'},
+        {span: 6, type: 'pickerOptionsPicker', name:'发布时间', placeholder: '发布时间',prop:'dateTime'},
+        { span: 2, prop: 'newType', name: '消息类型', placeholder: '请选择', type: 'select',
+           options: [
+                    { label: '全部', value: null},
+                    { label: '私聊消息', value: 0 },
+                    { label: '系统消息', value: 1 },
+                    ]
+        },
+        {
+          span: 2,
+          type: 'reset',
+          style:'warning',
+          class:'resetName',
+          label: '重置',
+          options: [
+            { label: '搜索', type: 'primary', click: this.onSubmit }
+          ],
+        },
+      ],
+      page:{
         pageIndex: 1, //页码 ,
-        pageSize: 10 //每页数据量大小 ,
+        pageSize: 10, //每页数据量大小 ,
       },
       dateTime: null, //搜索表格绑定时间
       // 新增/编辑提交表单对象
@@ -291,9 +247,6 @@ export default {
       },
       // 防止多次连续提交表单
       isSubmit: false,
-      // 导入数据 弹出框显示/隐藏
-      importVisible: false
-      //是否出现审核图片
     };
   },
   created() {
@@ -335,12 +288,16 @@ export default {
     },
     // 获取数据列表
     PostFetchData() {
+      // this.listLoading = true;
+      // // 获取审核数据列表接口
+      // let data = this.listQuery;
       this.listLoading = true;
-      // 获取审核数据列表接口
-      let data = this.listQuery;
+      let { pageIndex,pageSize } = this.page;
+      let searchData = Object.assign({}, this.listQuery);
+      this.upDateTime(searchData.dateTime,'startTime', 'endTime','dateTime',searchData);
+      let data = { ...searchData,pageIndex,pageSize}
       apiGetNewsList(data)
         .then(res => {
-          console.log(res);
           if (res.code === 200) {
             this.total = res.data.total;
             this.tableData = res.data.list;
@@ -355,7 +312,7 @@ export default {
     // 查询数据
     onSubmit() {
       // this.listQuery.currentPage = 1;
-      this.listQuery.pageIndex = 1;
+      this.page.pageIndex = 1;
       this.PostFetchData();
     },
     //重置数据
@@ -364,11 +321,7 @@ export default {
       Object.keys(that.listQuery).forEach(key => {
         that.listQuery[key] = null;
       });
-      this.listQuery.pageIndex = 1;
-      this.listQuery.pageSize = 10;
-      this.dateTime = null;
-      this.PostFetchData();
-      // this.$refs["searchForm"].resetFields(); //清空表单
+      this.onSubmit();
     },
     // 新增/编辑表单确认提交
     submitForm(formName, isCreate) {
