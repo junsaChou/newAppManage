@@ -1,0 +1,1454 @@
+[
+    {
+        "keyName": "loan_days",
+        "title": "贷款期限",
+        "placeholder": "请选择贷款期限",
+        "type": "select",
+        "unit": "jinniu",
+        "options": [
+            {
+                "label": "3个月",
+                "value": "90",
+                "textLoan": null,
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "6个月",
+                "value": "180",
+                "textLoan": null,
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "12个月",
+                "value": "360",
+                "textLoan": null,
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "24个月",
+                "value": "720",
+                "textLoan": null,
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "36个月及以上",
+                "value": "1080",
+                "textLoan": null,
+                "valid": true,
+                "children": null
+            }
+        ]
+    },
+    {
+        "keyName": "zhima_score",
+        "title": "芝麻分数",
+        "placeholder": "请选择芝麻分",
+        "type": "select",
+        "unit": "jinniu",
+        "options": [
+            {
+                "label": "500分以下",
+                "value": "END_500",
+                "textLoan": "无",
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "500-600分",
+                "value": "BETWEEN500_600",
+                "textLoan": "有",
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "600-650分",
+                "value": "BETWEEN600_650",
+                "textLoan": "有",
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "650-700分",
+                "value": "BETWEEN650_700",
+                "textLoan": "有",
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "700分以上",
+                "value": "MORE_700",
+                "textLoan": "有",
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "无",
+                "value": "NO_ZHIMA_CREDIT_SCORE",
+                "textLoan": "有",
+                "valid": true,
+                "children": null
+            }
+        ]
+    },
+    {
+        "keyName": "loan_for",
+        "title": "贷款目的",
+        "placeholder": "请选择贷款目的",
+        "type": "select",
+        "unit": "jinniu",
+        "options": [
+            {
+                "label": "消费贷款",
+                "value": "7",
+                "textLoan": null,
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "购房贷款",
+                "value": "9",
+                "textLoan": null,
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "购车贷款",
+                "value": "11",
+                "textLoan": null,
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "结婚贷款",
+                "value": "8",
+                "textLoan": null,
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "装修贷款",
+                "value": "10",
+                "textLoan": null,
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "教育贷款",
+                "value": "12",
+                "textLoan": null,
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "旅游贷款",
+                "value": "13",
+                "textLoan": null,
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "医疗贷款",
+                "value": "14",
+                "textLoan": null,
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "其他贷款",
+                "value": "15",
+                "textLoan": null,
+                "valid": true,
+                "children": null
+            }
+        ]
+    },
+    {
+        "keyName": "tencent_loan",
+        "title": "微粒贷",
+        "placeholder": "请选择微粒贷",
+        "type": "select",
+        "unit": "jinniu",
+        "options": [
+            {
+                "label": "5万及以下",
+                "value": "BELOW_FIFTY_THOUSAND",
+                "textLoan": "5万及以下",
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "5-10万",
+                "value": "FIVE_THOUSAND_ONE_HUNDRED_THOUSAND",
+                "textLoan": "5-10万",
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "10万及以上",
+                "value": "MORE_ONE_HUNDRED_THOUSAND",
+                "textLoan": "10万及以上",
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "无",
+                "value": "NO_WEIXIN_CREDIT",
+                "textLoan": "无",
+                "valid": true,
+                "children": null
+            }
+        ]
+    },
+    {
+        "keyName": "career_identity",
+        "title": "职业身份",
+        "placeholder": "请选择职业身份",
+        "type": "select",
+        "unit": "jinniu",
+        "options": [
+            {
+                "label": "上班族",
+                "value": "EMPLOYEE",
+                "textLoan": "上班族",
+                "valid": true,
+                "children": [
+                    {
+                        "keyName": "edu",
+                        "title": "教育程度",
+                        "placeholder": "请选择最高学历",
+                        "type": "select",
+                        "unit": "jinniu",
+                        "options": [
+                            {
+                                "label": "初中",
+                                "value": "JUNIOR_MIDDLE_SCHOOL",
+                                "textLoan": "初中",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "高中",
+                                "value": "HIGH_SCHOOL",
+                                "textLoan": "高中",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "中专",
+                                "value": "MIDDLE_SCHOOL",
+                                "textLoan": "中专",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "大专",
+                                "value": "ASSOCIATE_DEGREE",
+                                "textLoan": "大专",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "本科以上",
+                                "value": "BACHELOR_DEGREE_OR_ABOVE",
+                                "textLoan": "本科以上",
+                                "valid": true,
+                                "children": null
+                            }
+                        ]
+                    },
+                    {
+                        "keyName": "monthly_income",
+                        "title": "月收入",
+                        "placeholder": "请选择月收入",
+                        "type": "select",
+                        "unit": "jinniu",
+                        "options": [
+                            {
+                                "label": "2000-4000元",
+                                "value": "BETWEEN_2000_4000",
+                                "textLoan": "2000-4000元",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "4000-6000元",
+                                "value": "BETWEEN_4000_6000",
+                                "textLoan": "4000-6000元",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "6000-8000元",
+                                "value": "BETWEEN_6000_8000",
+                                "textLoan": "6000-8000元",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "8000元以上",
+                                "value": "MORE_8000_",
+                                "textLoan": "8000元以上",
+                                "valid": true,
+                                "children": null
+                            }
+                        ]
+                    },
+                    {
+                        "keyName": "worked_month",
+                        "title": "当前工龄",
+                        "placeholder": "请选择当前工龄",
+                        "type": "select",
+                        "unit": "jinniu",
+                        "options": [
+                            {
+                                "label": "3个月以下",
+                                "value": "UNDER_THREE_MONTHS",
+                                "textLoan": "3个月以下",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "3-6个月",
+                                "value": "THREE_SIX_MONTHS",
+                                "textLoan": "3-6个月",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "6个月以上",
+                                "value": "OVER_THREE_MONTHS",
+                                "textLoan": "6个月以上",
+                                "valid": true,
+                                "children": null
+                            }
+                        ]
+                    },
+                    {
+                        "keyName": "monthly_income_type",
+                        "title": "收入形式",
+                        "placeholder": "请选择收入形式",
+                        "type": "select",
+                        "unit": "jinniu",
+                        "options": [
+                            {
+                                "label": "现金发放",
+                                "value": "CASH",
+                                "textLoan": "现金发放",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "转账工资",
+                                "value": "TRANSFER",
+                                "textLoan": "转账工资",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "银行代发",
+                                "value": "BANK",
+                                "textLoan": "银行代发",
+                                "valid": true,
+                                "children": null
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "label": "自由职业",
+                "value": "FREE_JOB",
+                "textLoan": "自由职业",
+                "valid": true,
+                "children": [
+                    {
+                        "keyName": "edu",
+                        "title": "教育程度",
+                        "placeholder": "请选择最高学历",
+                        "type": "select",
+                        "unit": "jinniu",
+                        "options": [
+                            {
+                                "label": "初中",
+                                "value": "JUNIOR_MIDDLE_SCHOOL",
+                                "textLoan": "初中",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "高中",
+                                "value": "HIGH_SCHOOL",
+                                "textLoan": "高中",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "中专",
+                                "value": "MIDDLE_SCHOOL",
+                                "textLoan": "中专",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "大专",
+                                "value": "ASSOCIATE_DEGREE",
+                                "textLoan": "大专",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "本科以上",
+                                "value": "BACHELOR_DEGREE_OR_ABOVE",
+                                "textLoan": "本科以上",
+                                "valid": true,
+                                "children": null
+                            }
+                        ]
+                    },
+                    {
+                        "keyName": "monthly_income",
+                        "title": "月收入",
+                        "placeholder": "请选择月收入",
+                        "type": "select",
+                        "unit": "jinniu",
+                        "options": [
+                            {
+                                "label": "2000-4000元",
+                                "value": "BETWEEN_2000_4000",
+                                "textLoan": "2000-4000元",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "4000-6000元",
+                                "value": "BETWEEN_4000_6000",
+                                "textLoan": "4000-6000元",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "6000-8000元",
+                                "value": "BETWEEN_6000_8000",
+                                "textLoan": "6000-8000元",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "8000元以上",
+                                "value": "MORE_8000_",
+                                "textLoan": "8000元以上",
+                                "valid": true,
+                                "children": null
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "label": "个体户",
+                "value": "INDIVIDUAL",
+                "textLoan": "个体户",
+                "valid": true,
+                "children": [
+                    {
+                        "keyName": "edu",
+                        "title": "教育程度",
+                        "placeholder": "请选择最高学历",
+                        "type": "select",
+                        "unit": "jinniu",
+                        "options": [
+                            {
+                                "label": "初中",
+                                "value": "JUNIOR_MIDDLE_SCHOOL",
+                                "textLoan": "初中",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "高中",
+                                "value": "HIGH_SCHOOL",
+                                "textLoan": "高中",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "中专",
+                                "value": "MIDDLE_SCHOOL",
+                                "textLoan": "中专",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "大专",
+                                "value": "ASSOCIATE_DEGREE",
+                                "textLoan": "大专",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "本科以上",
+                                "value": "BACHELOR_DEGREE_OR_ABOVE",
+                                "textLoan": "本科以上",
+                                "valid": true,
+                                "children": null
+                            }
+                        ]
+                    },
+                    {
+                        "keyName": "business_license",
+                        "title": "营业执照",
+                        "placeholder": "请选择营业执照",
+                        "type": "select",
+                        "unit": "jinniu",
+                        "options": [
+                            {
+                                "label": "有",
+                                "value": "HAS_BUSINESS_LICENSE",
+                                "textLoan": "有",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "无",
+                                "value": "NO_BUSINESS_LICENSE",
+                                "textLoan": "无",
+                                "valid": true,
+                                "children": null
+                            }
+                        ]
+                    },
+                    {
+                        "keyName": "oper_year",
+                        "title": "经营年限",
+                        "placeholder": "请选择经营年限",
+                        "type": "select",
+                        "unit": "jinniu",
+                        "options": [
+                            {
+                                "label": "1年以下",
+                                "value": "UNDER_ONE_YEAR",
+                                "textLoan": "1年以下",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "1年",
+                                "value": "ONE_YEAR",
+                                "textLoan": "1年",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "2年",
+                                "value": "TWO_YEAR",
+                                "textLoan": "2年",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "3年",
+                                "value": "THREE_YEAR",
+                                "textLoan": "3年",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "4年",
+                                "value": "FOUR_YEAR",
+                                "textLoan": "4年",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "5年及以上",
+                                "value": "FIVE_AND_UPON",
+                                "textLoan": "5年及以上",
+                                "valid": true,
+                                "children": null
+                            }
+                        ]
+                    },
+                    {
+                        "keyName": "year_turnover",
+                        "title": "年度流水",
+                        "placeholder": "请选择年流水",
+                        "type": "select",
+                        "unit": "jinniu",
+                        "options": [
+                            {
+                                "label": "30万及以下",
+                                "value": "LOWER_30",
+                                "textLoan": "30万及以下",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "30万",
+                                "value": "JUST30",
+                                "textLoan": "30万",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "50万",
+                                "value": "JUST50",
+                                "textLoan": "50万",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "70万",
+                                "value": "JUST70",
+                                "textLoan": "70万",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "100万",
+                                "value": "JUST100",
+                                "textLoan": "100万",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "200万",
+                                "value": "JUST200",
+                                "textLoan": "200万",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "500万",
+                                "value": "JUST500",
+                                "textLoan": "500万",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "500万及以上",
+                                "value": "MORE500",
+                                "textLoan": "500万及以上",
+                                "valid": true,
+                                "children": null
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "keyName": "social_security",
+        "title": "本地社保",
+        "placeholder": "请选择本地社保",
+        "type": "select",
+        "unit": "jinniu",
+        "options": [
+            {
+                "label": "3个月以下",
+                "value": "UNDER_THREE",
+                "textLoan": "3个月以下",
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "连续3个月",
+                "value": "KEEP_THREE_SEX",
+                "textLoan": "连续3个月",
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "连续6个月",
+                "value": "MORE_SEX",
+                "textLoan": "连续6个月",
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "无本地社保",
+                "value": "NO_SOCIAL_SECURITY",
+                "textLoan": "无本地社保",
+                "valid": true,
+                "children": null
+            }
+        ]
+    },
+    {
+        "keyName": "provident_fund",
+        "title": "本地公积金",
+        "placeholder": "请选择本地公积金",
+        "type": "select",
+        "unit": "jinniu",
+        "options": [
+            {
+                "label": "3个月以下",
+                "value": "UNDER_THREE",
+                "textLoan": "3个月以下",
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "连续3个月",
+                "value": "KEEP_THREE_SEX",
+                "textLoan": "连续3个月",
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "连续6个月",
+                "value": "MORE_SEX",
+                "textLoan": "连续6个月",
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "无本地公积金",
+                "value": "NO_SOCIAL_SECURITY",
+                "textLoan": "无本地公积金",
+                "valid": true,
+                "children": null
+            }
+        ]
+    },
+    {
+        "keyName": "house",
+        "title": "名下房产",
+        "placeholder": "请选择名下房产",
+        "type": "select",
+        "unit": "jinniu",
+        "options": [
+            {
+                "label": "有房产，可接受抵押",
+                "value": "HAS_HOUSE_AND_ACCEPT_MORTGAGE",
+                "textLoan": "有",
+                "valid": true,
+                "children": [
+                    {
+                        "keyName": "house_type",
+                        "title": "房产类型",
+                        "placeholder": "请选择房产类型",
+                        "type": "select",
+                        "unit": "jinniu",
+                        "options": [
+                            {
+                                "label": "商业住宅",
+                                "value": "COMMERCIAL_HOUSING",
+                                "textLoan": "商品住宅",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "商铺",
+                                "value": "SHOPS",
+                                "textLoan": "商铺",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "经济适用房",
+                                "value": "AFFORDABLE_HOUSING",
+                                "textLoan": "经济适用房",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "自建房",
+                                "value": "SELF_BUILT_HOUSE",
+                                "textLoan": "自建房",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "厂房",
+                                "value": "WORKSHOP",
+                                "textLoan": "厂房",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "办公楼",
+                                "value": "OFFICE",
+                                "textLoan": "办公楼",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "危改房",
+                                "value": "REBUILD_ROOM",
+                                "textLoan": "危改房",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "其他",
+                                "value": "OTHERS",
+                                "textLoan": "其他",
+                                "valid": true,
+                                "children": null
+                            }
+                        ]
+                    },
+                    {
+                        "keyName": "house_worth",
+                        "title": "房产估值",
+                        "placeholder": "请选择房产估值",
+                        "type": "select",
+                        "unit": "jinniu",
+                        "options": [
+                            {
+                                "label": "50万及以下",
+                                "value": "BELOW_500_THOUSAND",
+                                "textLoan": "50万及以下",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "50-100万",
+                                "value": "500_THOUSAND",
+                                "textLoan": "50-100万",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "100-200万",
+                                "value": "ONE_MILLION",
+                                "textLoan": "100-200万",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "200-500万",
+                                "value": "TWO_MILLION",
+                                "textLoan": "200-500万",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "500-1000万",
+                                "value": "FIVE_MILLION",
+                                "textLoan": "500-1000万",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "1000万及以上",
+                                "value": "MORE_THAN_TEN_THOUSAND",
+                                "textLoan": "1000万及以上",
+                                "valid": true,
+                                "children": null
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "label": "有房产，不接受抵押",
+                "value": "HAS_HOUSE_AND_NOT_ACCEPT_MORTGAGE",
+                "textLoan": "有",
+                "valid": true,
+                "children": [
+                    {
+                        "keyName": "house_type",
+                        "title": "房产类型",
+                        "placeholder": "请选择房产类型",
+                        "type": "select",
+                        "unit": "jinniu",
+                        "options": [
+                            {
+                                "label": "商业住宅",
+                                "value": "COMMERCIAL_HOUSING",
+                                "textLoan": "商品住宅",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "商铺",
+                                "value": "SHOPS",
+                                "textLoan": "商铺",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "经济适用房",
+                                "value": "AFFORDABLE_HOUSING",
+                                "textLoan": "经济适用房",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "自建房",
+                                "value": "SELF_BUILT_HOUSE",
+                                "textLoan": "自建房",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "厂房",
+                                "value": "WORKSHOP",
+                                "textLoan": "厂房",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "办公楼",
+                                "value": "OFFICE",
+                                "textLoan": "办公楼",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "危改房",
+                                "value": "REBUILD_ROOM",
+                                "textLoan": "危改房",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "其他",
+                                "value": "OTHERS",
+                                "textLoan": "其他",
+                                "valid": true,
+                                "children": null
+                            }
+                        ]
+                    },
+                    {
+                        "keyName": "house_worth",
+                        "title": "房产估值",
+                        "placeholder": "请选择房产估值",
+                        "type": "select",
+                        "unit": "jinniu",
+                        "options": [
+                            {
+                                "label": "50万及以下",
+                                "value": "BELOW_500_THOUSAND",
+                                "textLoan": "50万及以下",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "50-100万",
+                                "value": "500_THOUSAND",
+                                "textLoan": "50-100万",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "100-200万",
+                                "value": "ONE_MILLION",
+                                "textLoan": "100-200万",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "200-500万",
+                                "value": "TWO_MILLION",
+                                "textLoan": "200-500万",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "500-1000万",
+                                "value": "FIVE_MILLION",
+                                "textLoan": "500-1000万",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "1000万及以上",
+                                "value": "MORE_THAN_TEN_THOUSAND",
+                                "textLoan": "1000万及以上",
+                                "valid": true,
+                                "children": null
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "label": "无房产",
+                "value": "NO_HOUSE",
+                "textLoan": "无",
+                "valid": true,
+                "children": null
+            }
+        ]
+    },
+    {
+        "keyName": "car",
+        "title": "名下车产",
+        "placeholder": "请选择名下车产",
+        "type": "select",
+        "unit": "jinniu",
+        "options": [
+            {
+                "label": "有车，可接受抵押",
+                "value": "HAS_CAR_AND_ACCEPT_MORTGAGE",
+                "textLoan": "有",
+                "valid": true,
+                "children": [
+                    {
+                        "keyName": "car_worth",
+                        "title": "车产估值",
+                        "placeholder": "请选择车产估值",
+                        "type": "select",
+                        "unit": "jinniu",
+                        "options": [
+                            {
+                                "label": "10万及以下",
+                                "value": "BELOW_ONE_HUNDRED_THOUSAND",
+                                "textLoan": "10万及以下",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "10-20万",
+                                "value": "ONE_HUNDRED_THOUSAND",
+                                "textLoan": "10-20万",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "20-30万",
+                                "value": "TWO_HUNDRED_THOUSAND",
+                                "textLoan": "20-30万",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "30-50万",
+                                "value": "THREE_HUNDRED_THOUSAND",
+                                "textLoan": "30-50万",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "50万及以上",
+                                "value": "FIVE_HUNDRED_THOUSAND",
+                                "textLoan": "50万及以上",
+                                "valid": true,
+                                "children": null
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "label": "有车，不接受抵押",
+                "value": "HAS_CAR_AND_NOT_ACCEPT_MORTGAGE",
+                "textLoan": "有",
+                "valid": true,
+                "children": [
+                    {
+                        "keyName": "car_worth",
+                        "title": "车产估值",
+                        "placeholder": "请选择车产估值",
+                        "type": "select",
+                        "unit": "jinniu",
+                        "options": [
+                            {
+                                "label": "10万及以下",
+                                "value": "BELOW_ONE_HUNDRED_THOUSAND",
+                                "textLoan": "10万及以下",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "10-20万",
+                                "value": "ONE_HUNDRED_THOUSAND",
+                                "textLoan": "10-20万",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "20-30万",
+                                "value": "TWO_HUNDRED_THOUSAND",
+                                "textLoan": "20-30万",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "30-50万",
+                                "value": "THREE_HUNDRED_THOUSAND",
+                                "textLoan": "30-50万",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "50万及以上",
+                                "value": "FIVE_HUNDRED_THOUSAND",
+                                "textLoan": "50万及以上",
+                                "valid": true,
+                                "children": null
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "label": "无车，准备购买",
+                "value": "NO_CAR_BUT_READY",
+                "textLoan": "无",
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "无车",
+                "value": "NO_CAR",
+                "textLoan": "无",
+                "valid": true,
+                "children": null
+            }
+        ]
+    },
+    {
+        "keyName": "credit_card_amount",
+        "title": "信用卡额度",
+        "placeholder": "请选择信用卡额度",
+        "type": "select",
+        "unit": "jinniu",
+        "options": [
+            {
+                "label": "3000元以下",
+                "value": "UNDER_3000",
+                "textLoan": "有",
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "3000-10000元",
+                "value": "BETWEEN_3000_10000",
+                "textLoan": "有",
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "10000-30000元",
+                "value": "BETWEEN_10000_30000",
+                "textLoan": "有",
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "30000元以上",
+                "value": "UPON_30000",
+                "textLoan": "有",
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "无",
+                "value": "NO_CREDIT_CARD",
+                "textLoan": "无",
+                "valid": true,
+                "children": null
+            }
+        ]
+    },
+    {
+        "keyName": "credit_record",
+        "title": "信用记录",
+        "placeholder": "请选择信用记录",
+        "type": "select",
+        "unit": "jinniu",
+        "options": [
+            {
+                "label": "信用良好，无逾期",
+                "value": "GOOD_CREDIT",
+                "textLoan": "信用良好，无逾期",
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "无信用卡或贷款",
+                "value": "NO_CREDIT_LOG",
+                "textLoan": "无信用卡或贷款",
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "1年内逾期少于3次且少于90天",
+                "value": "SOME_OVERDUE",
+                "textLoan": "1年内逾期少于3次且少于90天",
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "1年内逾期超过3次或者90天",
+                "value": "BIT_OVERDUE",
+                "textLoan": "1年内逾期超过3次或者90天",
+                "valid": true,
+                "children": null
+            }
+        ]
+    },
+    {
+        "keyName": "insurance",
+        "title": "个人保险",
+        "placeholder": "请选择个人保险",
+        "type": "select",
+        "unit": "jinniu",
+        "options": [
+            {
+                "label": "未投保",
+                "value": "NO_INSURANCE",
+                "textLoan": "未投保",
+                "valid": true,
+                "children": null
+            },
+            {
+                "label": "投保人寿险两年以下",
+                "value": "LESS_THAN_TWO_YEARS",
+                "textLoan": "投保人寿险两年以下",
+                "valid": true,
+                "children": [
+                    {
+                        "keyName": "insurance_company",
+                        "title": "投保公司",
+                        "placeholder": "请选择投保公司",
+                        "type": "select",
+                        "unit": "jinniu",
+                        "options": [
+                            {
+                                "label": "中国平安",
+                                "value": "PING_AN",
+                                "textLoan": "中国平安",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "中国人寿",
+                                "value": "CHINA_LIFE",
+                                "textLoan": "中国人寿",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "泰康人寿",
+                                "value": "TAI_KANGqiqitq",
+                                "textLoan": "康泰人寿",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "太平洋保险",
+                                "value": "CPIC",
+                                "textLoan": "太平洋保险",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "中国太平",
+                                "value": "TAI_PING",
+                                "textLoan": "中国太平",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "安邦保险",
+                                "value": "AN_BANG",
+                                "textLoan": "安邦保险",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "阳光保险",
+                                "value": "SINOSIG",
+                                "textLoan": "阳光保险",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "前海人寿",
+                                "value": "QIAN_HAI",
+                                "textLoan": "前海人寿",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "新华保险",
+                                "value": "NEW_CHINA_LIFE",
+                                "textLoan": "新华保险",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "招商信诺",
+                                "value": "CIGNACMB",
+                                "textLoan": "招商信诺",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "其他",
+                                "value": "OTHERS",
+                                "textLoan": "其他",
+                                "valid": true,
+                                "children": null
+                            }
+                        ]
+                    },
+                    {
+                        "keyName": "insurance_worth",
+                        "title": "保单价值",
+                        "placeholder": "请选择保单价值",
+                        "type": "select",
+                        "unit": "jinniu",
+                        "options": [
+                            {
+                                "label": "5万及以下",
+                                "value": "BELOW_FIFTY_THOUSAND",
+                                "textLoan": "5万及以下",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "5-10万",
+                                "value": "FIVE_THOUSAND_ONE_HUNDRED_THOUSAND",
+                                "textLoan": "5-10万",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "10万及以上",
+                                "value": "MORE_ONE_HUNDRED_THOUSAND",
+                                "textLoan": "10万及以上",
+                                "valid": true,
+                                "children": null
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "label": "投保人寿险两年以上",
+                "value": "MORE_THAN_TWO_YEARS",
+                "textLoan": "投保人寿险两年以上",
+                "valid": true,
+                "children": [
+                    {
+                        "keyName": "insurance_company",
+                        "title": "投保公司",
+                        "placeholder": "请选择投保公司",
+                        "type": "select",
+                        "unit": "jinniu",
+                        "options": [
+                            {
+                                "label": "中国平安",
+                                "value": "PING_AN",
+                                "textLoan": "中国平安",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "中国人寿",
+                                "value": "CHINA_LIFE",
+                                "textLoan": "中国人寿",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "泰康人寿",
+                                "value": "TAI_KANGqiqitq",
+                                "textLoan": "康泰人寿",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "太平洋保险",
+                                "value": "CPIC",
+                                "textLoan": "太平洋保险",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "中国太平",
+                                "value": "TAI_PING",
+                                "textLoan": "中国太平",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "安邦保险",
+                                "value": "AN_BANG",
+                                "textLoan": "安邦保险",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "阳光保险",
+                                "value": "SINOSIG",
+                                "textLoan": "阳光保险",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "前海人寿",
+                                "value": "QIAN_HAI",
+                                "textLoan": "前海人寿",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "新华保险",
+                                "value": "NEW_CHINA_LIFE",
+                                "textLoan": "新华保险",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "招商信诺",
+                                "value": "CIGNACMB",
+                                "textLoan": "招商信诺",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "其他",
+                                "value": "OTHERS",
+                                "textLoan": "其他",
+                                "valid": true,
+                                "children": null
+                            }
+                        ]
+                    },
+                    {
+                        "keyName": "insurance_worth",
+                        "title": "保单价值",
+                        "placeholder": "请选择保单价值",
+                        "type": "select",
+                        "unit": "jinniu",
+                        "options": [
+                            {
+                                "label": "5万及以下",
+                                "value": "BELOW_FIFTY_THOUSAND",
+                                "textLoan": "5万及以下",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "5-10万",
+                                "value": "FIVE_THOUSAND_ONE_HUNDRED_THOUSAND",
+                                "textLoan": "5-10万",
+                                "valid": true,
+                                "children": null
+                            },
+                            {
+                                "label": "10万及以上",
+                                "value": "MORE_ONE_HUNDRED_THOUSAND",
+                                "textLoan": "10万及以上",
+                                "valid": true,
+                                "children": null
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+]
